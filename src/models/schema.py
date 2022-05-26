@@ -30,19 +30,18 @@ class InsertProject(graphene.Mutation):
 class Query(ObjectType):
     node = relay.Node.Field()
     project = graphene.List(Project,q=String())
-    result = graphene.List(Result,q=Int())
+    result = graphene.List(Result,projectId=Int())
     all_projects = SQLAlchemyConnectionField(Project.connection)
     all_results = SQLAlchemyConnectionField(Result.connection)
 
     def resolve_project(self,info,**args):
         q = args.get('q')
-
         project_query = ProjectModel.query.filter(ProjectModel.name.contains(q)).all()
 
         return project_query
 
     def resolve_result(self,info,**args):
-        q = args.get('q')
+        q = args.get('projectId')
         result_query = ResultModel.query.filter(ResultModel.project_id==q)
 
         return result_query

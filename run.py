@@ -14,7 +14,7 @@ from src.database import init_db
 from subprocess import Popen, PIPE
 import datetime
 from src.app import app
-from src.parser import ProjectTable
+from src.parser import ProjectTable, ResultTable
 from src.models.models import Project, Results,db_session
 from flask_cors import CORS
 import shutil
@@ -24,8 +24,9 @@ HASP_DIR = "RunHasp.bat"
 
 #frontendからのデータ取得を可能にする
 api=Api(app)
-CORS(app,origins="http://localhost:8000",allow_headers=["Access-Control-Allow-Credentials"])
-CORS(app,origins="http://localhost:3000",allow_headers=["Access-Control-Allow-Credentials"])
+CORS(app,supports_credentials=True)
+#CORS(app,origins="http://localhost:8000",allow_headers=["Access-Control-Allow-Credentials"])
+#CORS(app,origins="http://localhost:3000",allow_headers=["Access-Control-Allow-Credentials"])
 
 @app.route("/")
 def hello_world():
@@ -209,4 +210,5 @@ def upload_multipart():
         })))
 
 if __name__=="__main__":
+
     app.run(debug=True)

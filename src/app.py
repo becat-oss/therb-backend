@@ -27,8 +27,6 @@ from src.models.models import db_session
 app = Flask(__name__)
 app.debug = True
 
-CORS(app)
-
 app.config.from_object('src.config.Config')
 #init_db(app)
 
@@ -40,6 +38,8 @@ app.add_url_rule(
         graphiql=True  # GraphiQLを表示
     )
 )
+
+
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
