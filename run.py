@@ -19,33 +19,19 @@ from src.models.models import Project, Results,db_session
 from flask_cors import CORS
 import shutil
 
-UPLOAD_DIR = "lib/hasp/"
-HASP_DIR = "RunHasp.bat"
+HASP_UPLOAD_DIR = "lib/hasp/"
+HASP_RUNTIME_DIR = "RunHasp.bat"
+
+THERB_UPLOAD_DIR = "lib/therb/"
+THERB_RUNTIME_DIR = "lib/therb/通常THERB.exe"
 
 #frontendからのデータ取得を可能にする
 api=Api(app)
 CORS(app,supports_credentials=True)
-#CORS(app,origins="http://localhost:8000",allow_headers=["Access-Control-Allow-Credentials"])
-#CORS(app,origins="http://localhost:3000",allow_headers=["Access-Control-Allow-Credentials"])
 
 @app.route("/")
 def hello_world():
     return "<p>test</p>"
-
-@app.route('/setting',methods=['POST'])
-def setting():
-    payload = request.json
-    print ('payload',payload)
-
-    #b.datデータを作成する
-    try:
-        f=open('b.dat','x')
-        f.write(f'{payload["b"]["rooms"][0]["roomId"]} {payload["b"]["rooms"][0]["x1"]}\n')
-        f.close()
-    except:
-        pass
-
-    return {'status':payload}
 
 #API endpointの設定
 class ProjectListEndpoint(Resource):
@@ -96,28 +82,8 @@ def download(project_name):
     response.headers['Content-Disposition'] = 'attachment; filename={project_name}.zip'.format(project_name=project_name)
     return response
 
-@app.route('/test',methods=['POST'])
-def test():
-    folder=request.form.get('name')
-    print('folder',folder)
-    p=Project(name=folder)
-    print ('project name',p.name)
-
-    db_session.add(p)
-    db_session.commit()
-
-    return make_response((jsonify({
-        'status':'success',
-        'name':str(p.name)
-    })))
-
-
-@app.route('/run',methods=['POST'])
-def upload_multipart():
-    if 'uploadFile' not in request.files:
-        make_response(jsonify({'result':'uploadFile is required.'}))
-    #print ('request.files',request.files)
-    file = request.files['b']
+def saveFile(source):
+    file = source
     fileName = file.filename
 
     saveFileName = werkzeug.utils.secure_filename(fileName)
@@ -125,10 +91,22 @@ def upload_multipart():
     #file.save(os.path.join(UPLOAD_DIR, saveFileName))
     print('saveFileName: {}'.format(saveFileName))
     file.save(saveFileName)
-    #print ('directory',os.path.join(os.getcwd(), HASP_DIR))
 
+
+@app.route('/run/therb',methods=['POST'])
+def run_therb():
+    bFile = request.files['b']
+    bFileName = bFile.filename
+
+@app.route('/run/hasp',methods=['POST'])
+def upload_multipart():
+    if 'file' not in request.files:
+        return make_response(jsonify({'result':'file is required in form data.'}))
+    
+    saveFile(request.files['file'])
+    
     #batchファイルをrunする
-    p = Popen(os.path.join(os.getcwd(), HASP_DIR))
+    p = Popen(os.path.join(os.getcwd(), HASP_RUNTIME_DIR))
     
     stdout,stderr=p.communicate()
     print('STDOUT: {}'.format(stdout))
@@ -143,15 +121,13 @@ def upload_multipart():
     #awaitする必要あり
     time.sleep(3)
     if os.path.exists(new_path):
-        print("path already exist")
-        pass
+        return make_response(jsonify({'message':'error. file name is duplicated. Please change file name.'}))
         #TODO:名前を変えてファイルを保存する方法必要
     else:
         os.makedirs(new_path)
         shutil.move("input001.txt",os.path.join("data",folder, "input001.txt"))
         shutil.move("out20.datweath.dat",os.path.join("data",folder, "out20.datweath.dat"))
-        
-        #db=SQLAlchemy()
+
         p=Project(name=folder)
 
         roomId=1
@@ -164,8 +140,7 @@ def upload_multipart():
             try:     
                 #データをparseして、データベースに保存する   
                 df1=pd.read_csv(output_file1)
-                #print ('df1',df1)
-                #resultTable=ResultTable()
+
                 roomT=df1["ROOM-T"].to_json()
                 clodS=df1["CLOD-S"].to_json()
                 rhexS=df1["RHEX-S"].to_json()
@@ -189,7 +164,6 @@ def upload_multipart():
                     #timeData[i]=datetime.datetime(2021,month[i],day[i],hour[i]-1)
                     timeData[i]=f'2021/{str(month[i])}/{str(day[i])} {str(hour[i])}:00'
 
-                #print ('roomT',roomT)
                 #r=resultTable.insert(roomT,clodS,rhexS,ahexS,fs,roomH,clodL,rhexL,ahexL,fl,mrt)
                 r=Results(hour=timeData,roomT=roomT,clodS=clodS,rhexS=rhexS,ahexS=ahexS,fs=fs,roomH=roomH,clodL=clodL,rhexL=rhexL,ahexL=ahexL,fl=fl,mrt=mrt)
                 print ('r',r.project_id)
