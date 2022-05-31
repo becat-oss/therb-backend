@@ -15,7 +15,7 @@ from subprocess import Popen, PIPE
 import datetime
 from src.app import app
 from src.parser import ProjectTable, ResultTable
-from src.models.models import Project, Results,db_session
+from src.models.models import Project, Results, Therb,db_session
 from flask_cors import CORS
 import shutil
 
@@ -95,8 +95,77 @@ def saveFile(source):
 
 @app.route('/run/therb',methods=['POST'])
 def run_therb():
-    bFile = request.files['b']
-    bFileName = bFile.filename
+    # bFile = request.files['b']
+    # bFileName = bFile.filename
+
+    #therbをrunする部分は尾崎先生の修正待ち
+    folder = "test"
+    p=Project(name=folder)
+    new_path=os.path.join(os.path.join("data/therb",folder))
+    print('new_path',new_path)
+    df=parseTherb(new_path)
+
+    roomCount=int((len(df.columns)-3)/3)
+
+    for i in range(1,roomCount+1):
+        time = df['time'].to_json()
+        temperature=df[f'room{i}_temperature'].to_json()
+        relativeHumidity=df[f'room{i}_relative_humidity'].to_json()
+        absoluteHumidity=df[f'room{i}_absolute_humidity'].to_json()
+
+        r=Therb(
+            time=time,
+            name=f'room{i}',
+            temp=temperature,
+            relHumidity=relativeHumidity,
+            absHumidity=absoluteHumidity
+        )
+
+        p.therb.append(r)
+        db_session.add(r)
+
+    db_session.add(p)
+    db_session.commit()
+
+    return make_response((jsonify({
+        'status':'success',
+        'url':f'http://localhost:8000/{str(r.project_id)}/timeseries'
+    })))
+
+    
+def parseTherb(file):
+    def setColumn(df):
+        roomCount=(len(df.columns)-3)/3
+        colName=['month','day','hour']
+        for i in range(1,int(roomCount)+1):
+            colName.append(f'room{i}_temperature')
+            colName.append(f'room{i}_relative_humidity')
+            colName.append(f'room{i}_absolute_humidity')
+
+        df.columns=colName
+
+        return df
+
+    def formatData(col):
+        temp = int(col)
+        if len(str(temp))==1:
+            return '0'+str(temp)
+        else:
+            return str(temp)
+
+    def date_parser(x):
+        return f'{formatData(x.month)}/{formatData(x.day)}/{formatData(int(x.hour))}:00'
+        #return datetime.datetime.strptime(f'{formatData(x.month)}/{formatData(x.day)}/{formatData(int(x.hour)-1)}','%m/%d/%H')
+    
+    outputFile='data/therb/test/o.dat'
+    df=pd.read_csv(outputFile,delim_whitespace=True,header=None)
+    df = setColumn(df)
+    #TODO:flexibleなロジックにすべき
+    df = df[:8641]
+    df['time']=df.apply(date_parser,axis=1)
+    
+    return df
+
 
 @app.route('/run/hasp',methods=['POST'])
 def upload_multipart():
@@ -115,7 +184,6 @@ def upload_multipart():
     folder=request.form.get('name')
     
     #フォルダ名が既にあるか確認必要
-    print('path',os.path.join(os.getcwd(), folder, "input001.txt"))
     new_path=os.path.join(os.path.join("data",folder))
 
     #awaitする必要あり
@@ -140,8 +208,8 @@ def upload_multipart():
             try:     
                 #データをparseして、データベースに保存する   
                 df1=pd.read_csv(output_file1)
-
                 roomT=df1["ROOM-T"].to_json()
+                #print('roomT',roomT)
                 clodS=df1["CLOD-S"].to_json()
                 rhexS=df1["RHEX-S"].to_json()
                 ahexS=df1["AHEX-S"].to_json()

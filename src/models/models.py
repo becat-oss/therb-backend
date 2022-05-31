@@ -22,6 +22,20 @@ class Project(Base):
     id=sa.Column(sa.Integer, primary_key=True)
     name=sa.Column(sa.String,nullable=False)
     results=relationship('Results',backref='project',lazy=True)
+    therb=relationship('Therb',backref='project',lazy=True)
+
+class Therb(Base):
+    __tablename__='therb'
+    project_id=sa.Column(sa.Integer,sa.ForeignKey('project.id'),nullable=False)
+    id=sa.Column(sa.Integer, primary_key=True)
+    name=sa.Column(sa.String,nullable=False)
+    time=sa.Column(sa.JSON)
+    temp=sa.Column(sa.JSON)
+    relHumidity=sa.Column(sa.JSON)
+    absHumidity=sa.Column(sa.JSON)
+
+    def serialize(self):
+        return{"room":self.temp}
 
 #roomが複数ある場合のテーブル構造を考える必要あり
 class Results(Base):
