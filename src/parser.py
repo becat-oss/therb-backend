@@ -7,7 +7,16 @@ import json
 db=SQLAlchemy()
 
 class ConstructionTable():
-    def 
+    def insert(self,name,description,materialIds):
+        construction=Construction(name=name,description=description)
+        #extract materials using material_ids
+        for materialId in materialIds:
+            material=Material.query.filter_by(id=materialId).first()
+            construction.materials.append(material)
+        
+        db.session.add(construction)
+        db.session.commit()
+        return {"status":"success"}
 
 class MaterialTable():
     def insert(self,name,description,conductibity,specificHeat,density,moistureConductivity,moistureCapacity):
@@ -24,6 +33,20 @@ class MaterialTable():
         db.session.commit()
 
         return p
+
+    def retrieve(self):
+        data=Material.query.all()
+        res=[]
+
+        for project in data:
+            temp={}
+            temp["id"]=project.id
+            temp["name"]=project.name
+            temp["description"]=project.description
+            temp["conductivity"]=project.conductivity
+            res.append(temp)
+
+        return res
         
 
 class ProjectTable():

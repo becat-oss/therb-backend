@@ -14,7 +14,7 @@ from src.database import init_db
 from subprocess import Popen, PIPE
 import datetime
 from src.app import app
-from src.parser import MaterialTable, ProjectTable, ResultTable
+from src.parser import MaterialTable, ProjectTable, ResultTable,ConstructionTable
 from src.models.models import Project, Results, Therb,db_session,Material
 from flask_cors import CORS
 import shutil
@@ -50,6 +50,28 @@ class MaterialEndpoint(Resource):
             payload["moistureCapacity"]
         )
 
+        return {"status":"success"}
+
+class MaterialListEndpoint(Resource):
+    def get(self):
+        materialTable=MaterialTable()
+        return jsonify({"data":materialTable.retrieve()})
+
+class ConstructionEndpoint(Resource):
+    def post(self):
+        payload = request.json
+        constructionTable = ConstructionTable()
+        constructionTable.insert(
+            payload["name"],
+            payload["description"],
+            payload["materialIds"]
+        )
+
+        return {"status":"success"}
+
+api.add_resource(ConstructionEndpoint,'/construction')
+api.add_resource(MaterialEndpoint,'/material')
+api.add_resource(MaterialListEndpoint,'/materials')
 
 # projectListのエンドポイント
 class ProjectListEndpoint(Resource):
