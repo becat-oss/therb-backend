@@ -51,11 +51,11 @@ class Construction(db.Model):
 #     description = db.Column(db.String(255),nullable=False)
 #     constructionId = db.Column(db.Integer,db.ForeignKey('construction.id'),nullable=True)
 
-# class Tag(db.Model):
-#     id = db.Column(db.Integer,primary_key=True)
-#     name = db.Column(db.String(255),nullable=False,unique=True)
-#     description = db.Column(db.String(255),nullable=False)
-#     constructionId = db.Column(db.Integer,db.ForeignKey('construction.id'),nullable=True)
+class Tag(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    name = db.Column(db.String(255),nullable=False,unique=True)
+    description = db.Column(db.String(255),nullable=False)
+    constructionId = db.Column(db.Integer,db.ForeignKey('construction.id'),nullable=True)
     
 class Project(Base):
     __tablename__='project'
