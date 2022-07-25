@@ -14,8 +14,8 @@ from src.database import init_db
 from subprocess import Popen, PIPE
 import datetime
 from src.app import app
-from src.parser import ProjectTable, ResultTable
-from src.models.models import Project, Results, Therb,db_session
+from src.parser import MaterialTable, ProjectTable, ResultTable
+from src.models.models import Project, Results, Therb,db_session,Material
 from flask_cors import CORS
 import shutil
 
@@ -34,6 +34,24 @@ def hello_world():
     return "<p>test</p>"
 
 #API endpointの設定
+# materialのエンドポイント
+class MaterialEndpoint(Resource):
+    def post(self):
+        payload = request.json
+        #TODO: payloadのvalidationが必要
+        materialTable = MaterialTable()
+        materialTable.insert(
+            payload["name"],
+            payload["description"],
+            payload["conductivity"],
+            payload["specificHeat"],
+            payload["density"],
+            payload["moistureConductivity"],
+            payload["moistureCapacity"]
+        )
+
+
+# projectListのエンドポイント
 class ProjectListEndpoint(Resource):
     def get(self):
         projectTable=ProjectTable()
@@ -44,6 +62,7 @@ class ProjectListEndpoint(Resource):
         projectTable.delete(id)
         return {"status":"success"}
 
+# projectのエンドポイント
 class ProjectEndpoint(Resource):
     def delete(self,id):
         projectTable=ProjectTable()
@@ -91,7 +110,6 @@ def saveFile(source):
     #file.save(os.path.join(UPLOAD_DIR, saveFileName))
     print('saveFileName: {}'.format(saveFileName))
     file.save(saveFileName)
-
 
 @app.route('/run/therb',methods=['POST'])
 def run_therb():
@@ -165,7 +183,6 @@ def parseTherb(file):
     df['time']=df.apply(date_parser,axis=1)
     
     return df
-
 
 @app.route('/run/hasp',methods=['POST'])
 def upload_multipart():
@@ -252,5 +269,4 @@ def upload_multipart():
         })))
 
 if __name__=="__main__":
-
     app.run(debug=True)

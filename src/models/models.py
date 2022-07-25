@@ -16,6 +16,22 @@ Base.metadata.bind = engine
 db_session = scoped_session(sessionmaker(autocommit=False,autoflush=False,bind=engine))
 Base.query = db_session.query_property()
 
+class Material(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    name = db.Column(db.String(255),nullable=False,unique=True)
+    description = db.Column(db.String(255),nullable=False)
+    conductivity = db.Column(db.Float,nullable=False)
+    specificHeat = db.Column(db.Float,nullable=False)
+    density = db.Column(db.Float,nullable=False)
+    moistureConductivity = db.Column(db.Float,nullable=False)
+    moistureCapacity = db.Column(db.Float,nullable=False)
+
+class Construction(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    name = db.Column(db.String(255),nullable=False,unique=True)
+    description = db.Column(db.String(255),nullable=False)
+    materials = db.relationship('Material',backref='construction',lazy='dynamic')
+
 class Project(Base):
     __tablename__='project'
 
@@ -59,6 +75,8 @@ class Results(Base):
 
     def serialize(self):
         return{"room":self.roomT}
+
+
 
 # Base.metadata.create_all(engine)
 

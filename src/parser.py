@@ -1,10 +1,30 @@
-from src.models.models import Project,Results
+from src.models.models import Project,Results,Material,Construction
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import delete
 from flask import jsonify
 import json
 
 db=SQLAlchemy()
+
+class ConstructionTable():
+    def 
+
+class MaterialTable():
+    def insert(self,name,description,conductibity,specificHeat,density,moistureConductivity,moistureCapacity):
+        p=Material(
+            name,
+            description,
+            conductibity,
+            specificHeat,
+            density,
+            moistureConductivity,
+            moistureCapacity
+        )
+        db.session.add(p)
+        db.session.commit()
+
+        return p
+        
 
 class ProjectTable():
     def delete(self,id):
