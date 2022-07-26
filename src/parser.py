@@ -1,4 +1,4 @@
-from src.models.models import Project,Results,Material,Construction
+from src.models.models import Project,Results,Material,Construction,Tag
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import delete
 from flask import jsonify
@@ -6,13 +6,31 @@ import json
 
 db=SQLAlchemy()
 
+class TagTable():
+    def insert(self,name,description):
+        p=Tag(name,description)
+
+        db.session.add(p)
+        db.session.commit()
+
+        return {"status":"success"}
+
+#TODO: fix this
 class ConstructionTable():
-    def insert(self,name,description,materialIds):
-        construction=Construction(name=name,description=description)
+    def insert(self,name,description,materialIds,tagIds,categories):
+        construction=Construction(
+            name,
+            description,
+            categories
+            )
         #extract materials using material_ids
         for materialId in materialIds:
             material=Material.query.filter_by(id=materialId).first()
             construction.materials.append(material)
+
+        for tagId in tagIds:
+            tag=Tag.query.filter_by(id=tagId).first()
+            construction.tags.append(tag)
         
         db.session.add(construction)
         db.session.commit()

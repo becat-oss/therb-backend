@@ -14,7 +14,7 @@ from src.database import init_db
 from subprocess import Popen, PIPE
 import datetime
 from src.app import app
-from src.parser import MaterialTable, ProjectTable, ResultTable,ConstructionTable
+from src.parser import MaterialTable, ProjectTable, ResultTable,ConstructionTable,TagTable
 from src.models.models import Project, Results, Therb,db_session,Material
 from flask_cors import CORS
 import shutil
@@ -52,10 +52,13 @@ class MaterialEndpoint(Resource):
 
         return {"status":"success"}
 
-class MaterialListEndpoint(Resource):
     def get(self):
         materialTable=MaterialTable()
-        return jsonify({"data":materialTable.retrieve()})
+        return jsonify({
+            "status":"success",
+            "message":"could retrieve materials",
+            "data":materialTable.retrieve()
+            })
 
 class ConstructionEndpoint(Resource):
     def post(self):
@@ -64,14 +67,27 @@ class ConstructionEndpoint(Resource):
         constructionTable.insert(
             payload["name"],
             payload["description"],
-            payload["materialIds"]
+            payload["materialIds"],
+            payload["tagIds"],
+            payload["categories"]
         )
 
         return {"status":"success"}
 
-api.add_resource(ConstructionEndpoint,'/construction')
-api.add_resource(MaterialEndpoint,'/material')
-api.add_resource(MaterialListEndpoint,'/materials')
+class TagEndpoint(Resource):
+    def post(self):
+        payload = request.json
+        tagTable = TagTable()
+        tagTable.insert(
+            payload["name"],
+            payload["description"]
+        )
+
+        return {"status":"success"}
+
+api.add_resource(ConstructionEndpoint,'/constructions')
+api.add_resource(MaterialEndpoint,'/materials')
+api.add_resource(TagEndpoint,'/tags')
 
 # projectListのエンドポイント
 class ProjectListEndpoint(Resource):

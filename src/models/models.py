@@ -25,7 +25,7 @@ class Material(db.Model):
     density = db.Column(db.Float,nullable=False)
     moistureConductivity = db.Column(db.Float,nullable=False)
     moistureCapacity = db.Column(db.Float,nullable=False)
-    #constructionId = db.Column(db.Integer,db.ForeignKey('construction.id'),nullable=True)
+    constructionId = db.Column(db.Integer,db.ForeignKey('construction.id'),nullable=True)
 
     def __init__(self,name,description,conductivity,specificHeat,density,moistureConductivity,moistureCapacity):
         self.name = name
@@ -41,22 +41,24 @@ class Construction(db.Model):
     name = db.Column(db.String(255),nullable=False,unique=True)
     description = db.Column(db.String(255),nullable=False)
     materials = db.relationship('Material',backref='construction',lazy='dynamic')
-    #categories = db.relationship('Category',backref='construction',lazy='dynamic')
     categories =db.Column(db.String(255),nullable=False)
-    tag = db.relationship('Tag',backref='construction',lazy='dynamic')
+    tags = db.relationship('Tag',backref='construction',lazy='dynamic')
 
-# class Category(db.Model):
-#     id = db.Column(db.Integer,primary_key=True)
-#     name = db.Column(db.String(255),nullable=False,unique=True)
-#     description = db.Column(db.String(255),nullable=False)
-#     constructionId = db.Column(db.Integer,db.ForeignKey('construction.id'),nullable=True)
+    def __init__(self,name,description,categories):
+        self.name = name
+        self.description = description
+        self.categories = categories
 
 class Tag(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String(255),nullable=False,unique=True)
-    description = db.Column(db.String(255),nullable=False)
+    description = db.Column(db.String(255),nullable=True)
     constructionId = db.Column(db.Integer,db.ForeignKey('construction.id'),nullable=True)
     
+    def __init__(self,name,description):
+        self.name = name
+        self.description = description
+        
 class Project(Base):
     __tablename__='project'
 
