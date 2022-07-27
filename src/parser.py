@@ -22,7 +22,7 @@ class ConstructionTable():
             name,
             description,
             categories
-            )
+        )
         #extract materials using material_ids
         for materialId in materialIds:
             material=Material.query.filter_by(id=materialId).first()
@@ -32,9 +32,48 @@ class ConstructionTable():
             tag=Tag.query.filter_by(id=tagId).first()
             construction.tags.append(tag)
         
-        db.session.add(construction)
-        db.session.commit()
+        #reference: https://stackoverflow.com/questions/24291933/sqlalchemy-object-already-attached-to-session
+        current_db_session=db.session.object_session(construction)
+        current_db_session.add(construction)
+        #db.session.add(construction)
+        current_db_session.commit()
         return {"status":"success"}
+
+    def retrieve(self):
+        def retrieve_materials(construction):
+            materials=[]
+            for material in construction.materials:
+                temp = {}
+                temp['id'] = material.id
+                temp['name'] = material.name
+                temp['description'] = material.description
+                temp['conductivity'] = material.conductivity
+                temp['specificHeat'] = material.specificHeat
+                temp['density'] = material.density
+                materials.append(temp)
+            return materials
+
+        def retrieve_tags(construction):
+            tags=[]
+            for tag in construction.tags:
+                temp = {}
+                temp['id'] = tag.id
+                temp['name'] = tag.name
+                tags.append(temp)
+            return tags
+        
+        data = Construction.query.all()
+        res = []
+        for construction in data:
+            temp = {}
+            temp['id'] = construction.id
+            temp['name'] = construction.name
+            temp['description'] = construction.description
+            temp['categories'] = construction.categories
+            temp['materials'] = retrieve_materials(construction)
+            temp['tags'] = retrieve_tags(construction)
+            res.append(temp)
+        return res
 
 class MaterialTable():
     def insert(self,name,description,conductibity,specificHeat,density,moistureConductivity,moistureCapacity):

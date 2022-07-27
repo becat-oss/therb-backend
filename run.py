@@ -74,6 +74,14 @@ class ConstructionEndpoint(Resource):
 
         return {"status":"success"}
 
+    def get(self):
+        constructionTable=ConstructionTable()
+        return jsonify({
+            "status":"success",
+            "message":"could retrieve constructions",
+            "data":constructionTable.retrieve()
+        })
+
 class TagEndpoint(Resource):
     def post(self):
         payload = request.json
