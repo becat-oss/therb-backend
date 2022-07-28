@@ -36,49 +36,52 @@ class Material(db.Model):
         self.moistureConductivity = moistureConductivity
         self.moistureCapacity = moistureCapacity
 
-# exWallIdentifier = db.Table('exWallIdentifier',
-#     db.Column('envelopeId',db.Integer,db.ForeignKey('envelope.id')),
-#     db.Column('exWallId',db.Integer,db.ForeignKey('construction.id')),
-# )
+exWallIdentifier = db.Table('exWallIdentifier',
+    db.Column('envelopeId',db.Integer,db.ForeignKey('envelope.id')),
+    db.Column('exWallId',db.Integer,db.ForeignKey('construction.id')),
+)
 
-# inWallIdentifier = db.Table('inWallIdentifier',
-#     db.Column('envelopeId',db.Integer,db.ForeignKey('envelope.id')),
-#     db.Column('inWallId',db.Integer,db.ForeignKey('construction.id')),
-# )
+inWallIdentifier = db.Table('inWallIdentifier',
+    db.Column('envelopeId',db.Integer,db.ForeignKey('envelope.id')),
+    db.Column('inWallId',db.Integer,db.ForeignKey('construction.id')),
+)
 
-# roofIdentifier = db.Table('roofIdentifier',
-#     db.Column('envelopeId',db.Integer,db.ForeignKey('envelope.id')),
-#     db.Column('roofId',db.Integer,db.ForeignKey('construction.id')),
-# )
+roofIdentifier = db.Table('roofIdentifier',
+    db.Column('envelopeId',db.Integer,db.ForeignKey('envelope.id')),
+    db.Column('roofId',db.Integer,db.ForeignKey('construction.id')),
+)
 
-# groundFloorIdentifier = db.Table('groundFloorIdentifier',
-#     db.Column('envelopeId',db.Integer,db.ForeignKey('envelope.id')),
-#     db.Column('groundFloorId',db.Integer,db.ForeignKey('construction.id')),
-# )
+groundFloorIdentifier = db.Table('groundFloorIdentifier',
+    db.Column('envelopeId',db.Integer,db.ForeignKey('envelope.id')),
+    db.Column('groundFloorId',db.Integer,db.ForeignKey('construction.id')),
+)
 
-# floorCeilingIdentifier = db.Table('floorCeilingIdentifier',
-#     db.Column('envelopeId',db.Integer,db.ForeignKey('envelope.id')),
-#     db.Column('floorCeilingId',db.Integer,db.ForeignKey('construction.id')),
-# )
+floorCeilingIdentifier = db.Table('floorCeilingIdentifier',
+    db.Column('envelopeId',db.Integer,db.ForeignKey('envelope.id')),
+    db.Column('floorCeilingId',db.Integer,db.ForeignKey('construction.id')),
+)
 
-# windowIdentifier = db.Table('windowIdentifier',
-#     db.Column('envelopeId',db.Integer,db.ForeignKey('envelope.id')),
-#     db.Column('windowId',db.Integer,db.ForeignKey('construction.id')),
-# )
+windowIdentifier = db.Table('windowIdentifier',
+    db.Column('envelopeId',db.Integer,db.ForeignKey('envelope.id')),
+    db.Column('windowId',db.Integer,db.ForeignKey('construction.id')),
+)
 
 class Envelope(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String(255),nullable=False,unique=True)
     description = db.Column(db.String(255),nullable=False)
-    # exteriorWall = db.relationship("Construction",secondary=exWallIdentifier)
-    # interiorWall = db.relationship("Construction",secondary=inWallIdentifier)
-    # roof = db.relationship("Construction",secondary=roofIdentifier)
-    # groundFloor = db.relationship("Construction",secondary=groundFloorIdentifier)
-    # floorCeiling = db.relationship("Construction",secondary=floorCeilingIdentifier)
-    # window = db.relationship("Construction",secondary=windowIdentifier)
+    exteriorWall = db.relationship("Construction",secondary=exWallIdentifier)
+    interiorWall = db.relationship("Construction",secondary=inWallIdentifier)
+    roof = db.relationship("Construction",secondary=roofIdentifier)
+    groundFloor = db.relationship("Construction",secondary=groundFloorIdentifier)
+    floorCeiling = db.relationship("Construction",secondary=floorCeilingIdentifier)
+    window = db.relationship("Construction",secondary=windowIdentifier)
     #exteriorWall = db.Column(db.Integer,db.ForeignKey('construction.id'))
     #interiorWall = db.Column(db.Integer,db.ForeignKey('construction.id'))
 
+    def __init__(self,name,description):
+        self.name = name
+        self.description = description
 
 
 class Construction(db.Model):
@@ -89,7 +92,7 @@ class Construction(db.Model):
     thickness = db.Column(db.String(255),nullable=False) # 10,20,10 thickness =10mm,20mm,10mm
     categories =db.Column(db.String(255),nullable=False)
     tags = db.relationship('Tag',backref='construction',lazy='dynamic')
-    envelopes = db.relationship('Envelope',backref='construction',lazy='dynamic')
+    #envelopes = db.relationship('Envelope',backref='construction',lazy='dynamic')
 
     def __init__(self,name,description,categories,thickness):
         self.name = name

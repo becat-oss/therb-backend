@@ -16,25 +16,43 @@ class TagTable():
         return {"status":"success"}
 
 class EnvelopeTable():
-    def queryConstruction(self,constructionIds,envelope,key):
-        for constructionId in constructionIds:
-            construction=Construction.query.filter_by(id=constructionId).first()
+    def queryConstruction(self,constructionId,envelope,key):
+        # for constructionId in constructionIds:
+        #     construction=Construction.query.filter_by(id=constructionId).first()
+        construction=Construction.query.filter_by(id=constructionId).first()
             
         envelope[key].append(construction)
 
         return envelope
 
-    def insert(self,name,description,exWallIds,inWallIds):
+    def insert(self,name,description,exWallId,inWallId,roofId,groundFloorId,floorCeilingId,windowId):
         envelope=Envelope(name,description)
 
-        envelopeWithExWall = self.queryConstruction(exWallIds,envelope,"exteriorWall")
-        envelopeWithInWall = self.queryConstruction(inWallIds,envelopeWithExWall,"interiorWall")
-        envelopeWithRoof = self.queryConstruction(inWallIds,envelopeWithInWall,"roof")
+        # envelopeWithExWall = self.queryConstruction(exWallId,envelope,"exteriorWall")
+        # envelopeWithInWall = self.queryConstruction(inWallId,envelopeWithExWall,"interiorWall")
+        # envelopeWithRoof = self.queryConstruction(roofId,envelopeWithInWall,"roof")
+        # envelopeWithGroundFloor = self.queryConstruction(groundFloorId,envelopeWithRoof,"groundFloor")
+        # envelopeWithFloorCeiling = self.queryConstruction(floorCeilingId,envelopeWithGroundFloor,"floorCeling")
+        # envelopeWithWindow = self.queryConstruction(windowId,envelopeWithFloorCeiling,"window")
 
-        db.session.add(p)
-        db.session.commit()
+        envelope.exteriorWall.append(Construction.query.filter_by(id=exWallId).first())
+        envelope.interiorWall.append(Construction.query.filter_by(id=inWallId).first())
+        envelope.roof.append(Construction.query.filter_by(id=roofId).first())
+        envelope.groundFloor.append(Construction.query.filter_by(id=groundFloorId).first())
+        envelope.floorCeiling.append(Construction.query.filter_by(id=floorCeilingId).first())
+        envelope.window.append(Construction.query.filter_by(id=windowId).first())
+
+        print('envelope',envelope)
+        current_db_session=db.session.object_session(envelope)
+        
+        #FIXME: current_db_session get to None which cause error
+        print ('current_db_session',current_db_session)
+        current_db_session.add(envelope)
+        #db.session.add(construction)
+        current_db_session.commit()
 
         return {"status":"success"}
+
 class ConstructionTable():
     def insert(self,name,description,materialIds,thickness,tagIds,categories):
         construction=Construction(

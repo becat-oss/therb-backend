@@ -14,7 +14,7 @@ from src.database import init_db
 from subprocess import Popen, PIPE
 import datetime
 from src.app import app
-from src.parser import MaterialTable, ProjectTable, ResultTable,ConstructionTable,TagTable
+from src.parser import MaterialTable, ProjectTable, ResultTable,EnvelopeTable,ConstructionTable,TagTable
 from src.models.models import Project, Results, Therb,db_session,Material
 from flask_cors import CORS
 import shutil
@@ -69,7 +69,13 @@ class EnvelopeEndpoint(Resource):
             payload["description"],
             payload["exteriorWallId"],
             payload["interiorWallId"],
+            payload["roofId"],
+            payload["groundFloorId"],
+            payload["floorCeilingId"],
+            payload["windowId"],
         )
+
+        return {"status":"success"}
 
 
 class ConstructionEndpoint(Resource):
@@ -106,6 +112,7 @@ class TagEndpoint(Resource):
 
         return {"status":"success"}
 
+api.add_resource(EnvelopeEndpoint,'/envelopes')
 api.add_resource(ConstructionEndpoint,'/constructions')
 api.add_resource(MaterialEndpoint,'/materials')
 api.add_resource(TagEndpoint,'/tags')
