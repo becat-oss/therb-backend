@@ -36,11 +36,18 @@ class Material(db.Model):
         self.moistureConductivity = moistureConductivity
         self.moistureCapacity = moistureCapacity
 
+class Envelope(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    name = db.Column(db.String(255),nullable=False,unique=True)
+    description = db.Column(db.String(255),nullable=False)
+    # exteriorWall = 
+
 class Construction(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String(255),nullable=False,unique=True)
     description = db.Column(db.String(255),nullable=False)
     materials = db.relationship('Material',backref='construction',lazy='dynamic')
+    thickness = db.Column(db.String(255),nullable=False) # 10,20,10 thickness =10mm,20mm,10mm
     categories =db.Column(db.String(255),nullable=False)
     tags = db.relationship('Tag',backref='construction',lazy='dynamic')
 
@@ -59,11 +66,7 @@ class Tag(db.Model):
         self.name = name
         self.description = description
 
-# class Envelope(db.Model):
-#     id = db.Column(db.Integer,primary_key=True)
-#     name = db.Column(db.String(255),nullable=False,unique=True)
-#     description = db.Column(db.String(255),nullable=False)
-    #exteriorWall = 
+
 
 class Project(Base):
     __tablename__='project'
