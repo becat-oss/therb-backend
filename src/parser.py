@@ -1,4 +1,4 @@
-from src.models.models import Project,Results,Material,Construction,Tag
+from src.models.models import Project,Results,Envelope,Material,Construction,Tag
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import delete
 from flask import jsonify
@@ -15,13 +15,33 @@ class TagTable():
 
         return {"status":"success"}
 
-#TODO: fix this
+class EnvelopeTable():
+    def queryConstruction(self,constructionIds,envelope,key):
+        for constructionId in constructionIds:
+            construction=Construction.query.filter_by(id=constructionId).first()
+            
+        envelope[key].append(construction)
+
+        return envelope
+
+    def insert(self,name,description,exWallIds,inWallIds):
+        envelope=Envelope(name,description)
+
+        envelopeWithExWall = self.queryConstruction(exWallIds,envelope,"exteriorWall")
+        envelopeWithInWall = self.queryConstruction(inWallIds,envelopeWithExWall,"interiorWall")
+        envelopeWithRoof = self.queryConstruction(inWallIds,envelopeWithInWall,"roof")
+
+        db.session.add(p)
+        db.session.commit()
+
+        return {"status":"success"}
 class ConstructionTable():
-    def insert(self,name,description,materialIds,tagIds,categories):
+    def insert(self,name,description,materialIds,thickness,tagIds,categories):
         construction=Construction(
             name,
             description,
-            categories
+            categories,
+            thickness
         )
         #extract materials using material_ids
         for materialId in materialIds:

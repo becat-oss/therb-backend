@@ -60,6 +60,18 @@ class MaterialEndpoint(Resource):
             "data":materialTable.retrieve()
             })
 
+class EnvelopeEndpoint(Resource):
+    def post(self):
+        payload = request.json
+        envelopeTable = EnvelopeTable()
+        envelopeTable.insert(
+            payload["name"],
+            payload["description"],
+            payload["exteriorWallId"],
+            payload["interiorWallId"],
+        )
+
+
 class ConstructionEndpoint(Resource):
     def post(self):
         payload = request.json
@@ -68,6 +80,7 @@ class ConstructionEndpoint(Resource):
             payload["name"],
             payload["description"],
             payload["materialIds"],
+            payload["thickness"],
             payload["tagIds"],
             payload["categories"]
         )
