@@ -2,13 +2,12 @@ from unittest import result
 from flask import Flask, json,request,jsonify
 import werkzeug
 from flask.helpers import make_response
-from flask_restful import reqparse
 import os
 import shutil
 import subprocess
 import time
 import pandas as pd
-from flask_restful import Resource, Api,reqparse
+from flask_restful import Resource, Api
 from flask_sqlalchemy import SQLAlchemy
 from src.database import init_db
 from subprocess import Popen, PIPE
@@ -335,4 +334,4 @@ def upload_multipart():
         })))
 
 if __name__=="__main__":
-    app.run(debug=True)
+    app.run(debug=True,host='0.0.0.0',port=8080)

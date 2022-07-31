@@ -44,7 +44,7 @@ class EnvelopeTable():
 
         print('envelope',envelope)
         current_db_session=db.session.object_session(envelope)
-        
+
         #FIXME: current_db_session get to None which cause error
         print ('current_db_session',current_db_session)
         current_db_session.add(envelope)
@@ -110,6 +110,10 @@ class ConstructionTable():
             temp['categories'] = construction.categories
             temp['materials'] = retrieve_materials(construction)
             temp['tags'] = retrieve_tags(construction)
+
+            thicknessList = construction.thickness.split(",")
+            temp["thickness"] = list(map(float, thicknessList))
+            
             res.append(temp)
         return res
 
