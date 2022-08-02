@@ -83,7 +83,6 @@ class Envelope(db.Model):
         self.name = name
         self.description = description
 
-
 class Construction(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String(255),nullable=False,unique=True)
@@ -116,7 +115,7 @@ class Project(Base):
     id=sa.Column(sa.Integer, primary_key=True)
     name=sa.Column(sa.String,nullable=False)
     results=relationship('Results',backref='project',lazy=True)
-    therb=relationship('Therb',backref='project',lazy=True)
+    #therb=relationship('Therb',backref='project',lazy=True)
 
 class Therb(Base):
     __tablename__='therb'
@@ -153,8 +152,6 @@ class Results(Base):
 
     def serialize(self):
         return{"room":self.roomT}
-
-
 
 # Base.metadata.create_all(engine)
 
