@@ -15,6 +15,16 @@ class TagTable():
 
         return {"status":"success"}
 
+    def retrieve(self):
+        p=Tag.query.all()
+        tags=[]
+        for tag in p:
+            temp = {}
+            temp['id'] = tag.id
+            temp['name'] = tag.name
+            tags.append(temp)
+        return tags
+
 class EnvelopeTable():
     def queryConstruction(self,constructionId,envelope,key):
         # for constructionId in constructionIds:

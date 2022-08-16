@@ -1,5 +1,5 @@
 from unittest import result
-from flask import Flask, json,request,jsonify
+from flask import Flask, json,request,jsonify,abort
 import werkzeug
 from flask.helpers import make_response
 import os
@@ -14,7 +14,7 @@ from subprocess import Popen, PIPE
 import datetime
 from src.app import app
 from src.parser import MaterialTable, ProjectTable, ResultTable,EnvelopeTable,ConstructionTable,TagTable
-from src.models.models import Project, Results, Therb,db_session,Material
+from src.models.models import Construction, Project, Results, Therb,db_session,Material
 from flask_cors import CORS
 import shutil
 
@@ -100,6 +100,18 @@ class ConstructionEndpoint(Resource):
             "data":constructionTable.retrieve()
         })
 
+    def delete(self):
+        id = request.args.get('id')
+        db=SQLAlchemy()
+        construcion=db.session.query(Construction).filter(Construction.id==id)
+        if construcion.count() >= 1:
+            db.session.delete(construcion.first())
+            db.session.commit()
+
+            return {"status":"success"},200
+        else:
+            abort(404)
+
 class TagEndpoint(Resource):
     def post(self):
         payload = request.json
@@ -110,6 +122,14 @@ class TagEndpoint(Resource):
         )
 
         return {"status":"success"}
+
+    def get(self):
+        tagTable=TagTable()
+        return jsonify({
+            "status":"success",
+            "message":"could retrieve tags",
+            "data":tagTable.retrieve()
+        })
 
 api.add_resource(EnvelopeEndpoint,'/envelopes')
 api.add_resource(ConstructionEndpoint,'/constructions')
