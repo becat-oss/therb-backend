@@ -13,14 +13,14 @@ class TagTable():
         db.session.add(p)
         db.session.commit()
 
-        return {"status":"success"}
+        return p
 
     def retrieve(self):
         p=Tag.query.all()
         tags=[]
         for tag in p:
             temp = {}
-            temp['id'] = tag.id
+            temp['id'] = str(tag.id)
             temp['name'] = tag.name
             tags.append(temp)
         return tags
@@ -73,26 +73,27 @@ class ConstructionTable():
         )
         #extract materials using material_ids
         for materialId in materialIds:
-            material=Material.query.filter_by(id=materialId).first()
+            material=Material.query.filter_by(id=int(materialId)).first()
             construction.materials.append(material)
 
         for tagId in tagIds:
-            tag=Tag.query.filter_by(id=tagId).first()
+            tag=Tag.query.filter_by(id=int(tagId)).first()
             construction.tags.append(tag)
         
         #reference: https://stackoverflow.com/questions/24291933/sqlalchemy-object-already-attached-to-session
         current_db_session=db.session.object_session(construction)
         current_db_session.add(construction)
-        #db.session.add(construction)
         current_db_session.commit()
-        return {"status":"success"}
+        #db.session.add(construction)
+        #db.session.commit()
+        return construction
 
     def retrieve(self):
         def retrieve_materials(construction):
             materials=[]
             for material in construction.materials:
                 temp = {}
-                temp['id'] = material.id
+                temp['id'] = str(material.id)
                 temp['name'] = material.name
                 temp['description'] = material.description
                 temp['conductivity'] = material.conductivity
@@ -105,7 +106,7 @@ class ConstructionTable():
             tags=[]
             for tag in construction.tags:
                 temp = {}
-                temp['id'] = tag.id
+                temp['id'] = str(tag.id)
                 temp['name'] = tag.name
                 tags.append(temp)
             return tags
@@ -114,10 +115,10 @@ class ConstructionTable():
         res = []
         for construction in data:
             temp = {}
-            temp['id'] = construction.id
+            temp['id'] = str(construction.id)
             temp['name'] = construction.name
             temp['description'] = construction.description
-            temp['categories'] = construction.categories
+            temp['category'] = construction.categories
             temp['materials'] = retrieve_materials(construction)
             temp['tags'] = retrieve_tags(construction)
 
@@ -149,7 +150,7 @@ class MaterialTable():
 
         for project in data:
             temp={}
-            temp["id"]=project.id
+            temp["id"]=str(project.id)
             temp["name"]=project.name
             temp["description"]=project.description
             temp["conductivity"]=project.conductivity

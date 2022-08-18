@@ -16,6 +16,16 @@ Base.metadata.bind = engine
 db_session = scoped_session(sessionmaker(autocommit=False,autoflush=False,bind=engine))
 Base.query = db_session.query_property()
 
+construction_material = db.Table('construction_material',
+    db.Column('constructionId',db.Integer,db.ForeignKey('construction.id')),
+    db.Column('materialId',db.Integer,db.ForeignKey('material.id')),
+)
+
+construction_tag = db.Table('construction_tag',
+    db.Column('constructionId',db.Integer,db.ForeignKey('construction.id')),
+    db.Column('tagId',db.Integer,db.ForeignKey('tag.id')),
+)
+
 class Material(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String(255),nullable=False,unique=True)
@@ -25,7 +35,7 @@ class Material(db.Model):
     density = db.Column(db.Float,nullable=False)
     moistureConductivity = db.Column(db.Float,nullable=False)
     moistureCapacity = db.Column(db.Float,nullable=False)
-    constructionId = db.Column(db.Integer,db.ForeignKey('construction.id'),nullable=True)
+    #constructionId = db.Column(db.Integer,db.ForeignKey('construction.id'),nullable=True)
 
     def __init__(self,name,description,conductivity,specificHeat,density,moistureConductivity,moistureCapacity):
         self.name = name
@@ -87,10 +97,12 @@ class Construction(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String(255),nullable=False,unique=True)
     description = db.Column(db.String(255),nullable=False)
-    materials = db.relationship('Material',backref='construction',lazy='dynamic')
+    #materials = db.relationship('Material',backref='construction',lazy='dynamic')
+    materials = db.relationship('Material',secondary=construction_material,backref='constructions')
     thickness = db.Column(db.String(255),nullable=False) # 10,20,10 thickness =10mm,20mm,10mm
     categories =db.Column(db.String(255),nullable=False)
-    tags = db.relationship('Tag',backref='construction',lazy='dynamic')
+    #tags = db.relationship('Tag',backref='construction',lazy='dynamic')
+    tags = db.relationship('Tag',secondary=construction_tag,backref='constructions')
     #envelopes = db.relationship('Envelope',backref='construction',lazy='dynamic')
 
     def __init__(self,name,description,categories,thickness):

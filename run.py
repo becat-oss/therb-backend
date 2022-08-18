@@ -39,7 +39,7 @@ class MaterialEndpoint(Resource):
         payload = request.json
         #TODO: payloadのvalidationが必要
         materialTable = MaterialTable()
-        materialTable.insert(
+        data=materialTable.insert(
             payload["name"],
             payload["description"],
             payload["conductivity"],
@@ -49,7 +49,18 @@ class MaterialEndpoint(Resource):
             payload["moistureCapacity"]
         )
 
-        return {"status":"success"}
+        return {
+            "status":"success",
+            "message":"could save material",
+            "data":{
+                "id":str(data.id),
+                "name":data.name,
+                "description":data.description,
+                "conductivity":data.conductivity,
+                "specificHeat":data.specificHeat,
+                "density":data.density,
+            }
+            }
 
     def get(self):
         materialTable=MaterialTable()
@@ -81,16 +92,26 @@ class ConstructionEndpoint(Resource):
     def post(self):
         payload = request.json
         constructionTable = ConstructionTable()
-        constructionTable.insert(
+        data=constructionTable.insert(
             payload["name"],
             payload["description"],
             payload["materialIds"],
             payload["thickness"],
             payload["tagIds"],
-            payload["categories"]
+            payload["category"]
         )
 
-        return {"status":"success"}
+        return {
+            "status":"success",
+            "message":"could save construction",
+            "data":{
+                "id":str(data.id),
+                "name":data.name,
+                "description":data.description,
+                "thickness":data.thickness,
+                "categories":data.categories,
+            }
+        }
 
     def get(self):
         constructionTable=ConstructionTable()
@@ -116,12 +137,19 @@ class TagEndpoint(Resource):
     def post(self):
         payload = request.json
         tagTable = TagTable()
-        tagTable.insert(
+        data=tagTable.insert(
             payload["name"],
             payload["description"]
         )
 
-        return {"status":"success"}
+        return {
+            "status":"success",
+            "message":"could save tag",
+            "data":{
+                "id":str(data.id),
+                "name":data.name,
+            }
+        }
 
     def get(self):
         tagTable=TagTable()
