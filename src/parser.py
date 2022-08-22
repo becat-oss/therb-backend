@@ -64,6 +64,7 @@ class EnvelopeTable():
         return {"status":"success"}
 
 class ConstructionTable():
+
     def insert(self,name,description,materialIds,thickness,tagIds,categories):
         construction=Construction(
             name,
@@ -86,6 +87,25 @@ class ConstructionTable():
         current_db_session.commit()
         #db.session.add(construction)
         #db.session.commit()
+        return construction
+    
+    def update(self,id,name,description,materialIds,thickness,tagIds,categories):
+        construction=db.session.query(Construction).filter_by(id=id).first()
+
+        construction.name=name
+        construction.description=description
+        construction.categories=categories
+        construction.thickness=thickness
+        construction.materials=[]
+        construction.tags=[]
+        for materialId in materialIds:
+            material=db.session.query(Material).filter_by(id=int(materialId)).first()
+            construction.materials.append(material)
+
+        for tagId in tagIds:
+            tag=Tag.query.filter_by(id=int(tagId)).first()
+            construction.tags.append(tag)
+        db.session.commit()
         return construction
 
     def retrieve(self):
@@ -147,6 +167,21 @@ class MaterialTable():
             classification
         )
         db.session.add(p)
+        db.session.commit()
+
+        return p
+
+    def update(self,id,name,description,conductibity,specificHeat,density,moistureConductivity,moistureCapacity,classification):
+        #p=Material.query.filter_by(id=id).first()
+        p=db.session.query(Material).filter_by(id=id).first()
+        p.name=name
+        p.description=description
+        p.conductivity=conductibity
+        p.specificHeat=specificHeat
+        p.density=density
+        p.moistureConductivity=moistureConductivity
+        p.moistureCapacity=moistureCapacity
+        p.classification=classification
         db.session.commit()
 
         return p

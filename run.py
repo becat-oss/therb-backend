@@ -36,6 +36,7 @@ def hello_world():
 #API endpointの設定
 # materialのエンドポイント
 class MaterialEndpoint(Resource):
+
     def post(self):
         payload = request.json
         #TODO: payloadのvalidationが必要
@@ -67,7 +68,42 @@ class MaterialEndpoint(Resource):
                 "specificHeat":data.specificHeat,
                 "density":data.density,
             }
+        }
+
+    def put(self):
+        
+        payload = request.json
+        if payload["name"] == "":
+            return {"status":"error","message":"name is required"},400
+        if "conductivity" not in payload or "specificHeat" not in payload or "density" not in payload or "classification" not in payload:
+            return {"status":"error","message":"conductivity, specificHeat, density is required"},400
+
+        id = request.args.get('id')
+        materialTable = MaterialTable()
+        data=materialTable.update(
+            id,
+            payload["name"],
+            payload["description"],
+            payload["conductivity"],
+            payload["specificHeat"],
+            payload["density"],
+            payload["moistureConductivity"],
+            payload["moistureCapacity"],
+            payload["classification"]
+        )
+
+        return {
+            "status":"success",
+            "message":"could update material",
+            "data":{
+                "id":str(data.id),
+                "name":data.name,
+                "description":data.description,
+                "conductivity":data.conductivity,
+                "specificHeat":data.specificHeat,
+                "density":data.density,
             }
+        }
 
     def get(self):
         materialTable=MaterialTable()
@@ -134,6 +170,43 @@ class ConstructionEndpoint(Resource):
         return {
             "status":"success",
             "message":"could save construction",
+            "data":{
+                "id":str(data.id),
+                "name":data.name,
+                "description":data.description,
+                "thickness":data.thickness,
+                "categories":data.categories,
+            }
+        }
+
+    def put(self):
+        payload = request.json
+
+        #必要な情報が含まれているかどうかチェック
+        if payload["name"] == "":
+            return {"status":"error","message":"name is required"},400
+        if len(payload["materialIds"]) == 0:
+            return {"status":"error","message":"at least one material id is required"},400
+        if payload["thickness"] == "":
+            return {"status":"error","message":"at least one thickness data is required"},400
+        if payload["thickness"].count(",")+1 != len(payload["materialIds"]) :
+            return {"status":"error","message":"you cannot select same material in one construction"},400
+        
+        id = request.args.get('id')
+        constructionTable = ConstructionTable()
+        data=constructionTable.update(
+            id,
+            payload["name"],
+            payload["description"],
+            payload["materialIds"],
+            payload["thickness"],
+            payload["tagIds"],
+            payload["category"]
+        )
+
+        return {
+            "status":"success",
+            "message":"could update construction",
             "data":{
                 "id":str(data.id),
                 "name":data.name,
