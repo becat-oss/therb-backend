@@ -17,6 +17,7 @@ from src.parser import MaterialTable, ProjectTable, ResultTable,EnvelopeTable,Co
 from src.models.models import Construction, Project, Results, Therb,db_session,Material
 from flask_cors import CORS
 import shutil
+from zipfile import ZipFile
 
 HASP_UPLOAD_DIR = "lib/hasp/"
 HASP_RUNTIME_DIR = "RunHasp.bat"
@@ -38,6 +39,11 @@ class MaterialEndpoint(Resource):
     def post(self):
         payload = request.json
         #TODO: payloadのvalidationが必要
+        if payload["name"] == "":
+            return {"status":"error","message":"name is required"},400
+        if "conductivity" not in payload or "specificHeat" not in payload or "density" not in payload or "classification" not in payload:
+            return {"status":"error","message":"conductivity, specificHeat, density is required"},400
+
         materialTable = MaterialTable()
         data=materialTable.insert(
             payload["name"],
@@ -104,6 +110,17 @@ class EnvelopeEndpoint(Resource):
 class ConstructionEndpoint(Resource):
     def post(self):
         payload = request.json
+
+        #必要な情報が含まれているかどうかチェック
+        if payload["name"] == "":
+            return {"status":"error","message":"name is required"},400
+        if len(payload["materialIds"]) == 0:
+            return {"status":"error","message":"at least one material id is required"},400
+        if payload["thickness"] == "":
+            return {"status":"error","message":"at least one thickness data is required"},400
+        if payload["thickness"].count(",")+1 != len(payload["materialIds"]) :
+            return {"status":"error","message":"you cannot select same material in one construction"},400
+        
         constructionTable = ConstructionTable()
         data=constructionTable.insert(
             payload["name"],
@@ -149,6 +166,10 @@ class ConstructionEndpoint(Resource):
 class TagEndpoint(Resource):
     def post(self):
         payload = request.json
+
+        if payload["name"] == "":
+            return {"status":"error","message":"name is required"},400
+
         tagTable = TagTable()
         data=tagTable.insert(
             payload["name"],
@@ -238,43 +259,56 @@ def saveFile(source):
     print('saveFileName: {}'.format(saveFileName))
     file.save(saveFileName)
 
-@app.route('/run/therb',methods=['POST'])
+@app.route('/therb/run',methods=['POST'])
 def run_therb():
-    # bFile = request.files['b']
-    # bFileName = bFile.filename
-
+    dataset = request.files['dataset']
+    datasetName = dataset.filename
     #therbをrunする部分は尾崎先生の修正待ち
-    folder = "test"
-    p=Project(name=folder)
-    new_path=os.path.join(os.path.join("data/therb",folder))
-    print('new_path',new_path)
-    df=parseTherb(new_path)
+    folder = "data"
+    #zipファイルを保存する
+    saveFile(dataset)
 
-    roomCount=int((len(df.columns)-3)/3)
+    #zipファイルを解凍する
+    with ZipFile(datasetName, 'r') as zip:
+        zip.extractall(folder)
 
-    for i in range(1,roomCount+1):
-        time = df['time'].to_json()
-        temperature=df[f'room{i}_temperature'].to_json()
-        relativeHumidity=df[f'room{i}_relative_humidity'].to_json()
-        absoluteHumidity=df[f'room{i}_absolute_humidity'].to_json()
+    shutil.copy("lib/therb/therb.exe",os.path.join("data",datasetName.replace(".zip",""), "therb.exe"))
 
-        r=Therb(
-            time=time,
-            name=f'room{i}',
-            temp=temperature,
-            relHumidity=relativeHumidity,
-            absHumidity=absoluteHumidity
-        )
+    #zipファイルを削除する
+    os.remove(datasetName)
+    #dataフォルダのデータも削除する
+    shutil.rmtree(os.path.join("data",datasetName.replace(".zip","")))
+    #therbシミュレーションをrunする
 
-        p.therb.append(r)
-        db_session.add(r)
+    # p=Project(name=folder)
+    # new_path=os.path.join(os.path.join("data/therb",folder))
+    # print('new_path',new_path)
+    # df=parseTherb(new_path)
 
-    db_session.add(p)
-    db_session.commit()
+    # roomCount=int((len(df.columns)-3)/3)
+
+    # for i in range(1,roomCount+1):
+    #     time = df['time'].to_json()
+    #     temperature=df[f'room{i}_temperature'].to_json()
+    #     relativeHumidity=df[f'room{i}_relative_humidity'].to_json()
+    #     absoluteHumidity=df[f'room{i}_absolute_humidity'].to_json()
+
+    #     r=Therb(
+    #         time=time,
+    #         name=f'room{i}',
+    #         temp=temperature,
+    #         relHumidity=relativeHumidity,
+    #         absHumidity=absoluteHumidity
+    #     )
+
+    #     p.therb.append(r)
+    #     db_session.add(r)
+
+    # db_session.add(p)
+    # db_session.commit()
 
     return make_response((jsonify({
-        'status':'success',
-        'url':f'http://localhost:8000/{str(r.project_id)}/timeseries'
+        'status':'not implemented yet',
     })))
 
     
