@@ -36,6 +36,7 @@ def hello_world():
 #API endpointの設定
 # materialのエンドポイント
 class MaterialEndpoint(Resource):
+
     def post(self):
         payload = request.json
         #TODO: payloadのvalidationが必要
@@ -67,7 +68,42 @@ class MaterialEndpoint(Resource):
                 "specificHeat":data.specificHeat,
                 "density":data.density,
             }
+        }
+
+    def put(self):
+        
+        payload = request.json
+        if payload["name"] == "":
+            return {"status":"error","message":"name is required"},400
+        if "conductivity" not in payload or "specificHeat" not in payload or "density" not in payload or "classification" not in payload:
+            return {"status":"error","message":"conductivity, specificHeat, density is required"},400
+
+        id = request.args.get('id')
+        materialTable = MaterialTable()
+        data=materialTable.update(
+            id,
+            payload["name"],
+            payload["description"],
+            payload["conductivity"],
+            payload["specificHeat"],
+            payload["density"],
+            payload["moistureConductivity"],
+            payload["moistureCapacity"],
+            payload["classification"]
+        )
+
+        return {
+            "status":"success",
+            "message":"could update material",
+            "data":{
+                "id":str(data.id),
+                "name":data.name,
+                "description":data.description,
+                "conductivity":data.conductivity,
+                "specificHeat":data.specificHeat,
+                "density":data.density,
             }
+        }
 
     def get(self):
         materialTable=MaterialTable()

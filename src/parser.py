@@ -64,6 +64,7 @@ class EnvelopeTable():
         return {"status":"success"}
 
 class ConstructionTable():
+
     def insert(self,name,description,materialIds,thickness,tagIds,categories):
         construction=Construction(
             name,
@@ -147,6 +148,21 @@ class MaterialTable():
             classification
         )
         db.session.add(p)
+        db.session.commit()
+
+        return p
+
+    def update(self,id,name,description,conductibity,specificHeat,density,moistureConductivity,moistureCapacity,classification):
+        #p=Material.query.filter_by(id=id).first()
+        p=db.session.query(Material).filter_by(id=id).first()
+        p.name=name
+        p.description=description
+        p.conductivity=conductibity
+        p.specificHeat=specificHeat
+        p.density=density
+        p.moistureConductivity=moistureConductivity
+        p.moistureCapacity=moistureCapacity
+        p.classification=classification
         db.session.commit()
 
         return p
