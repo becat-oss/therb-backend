@@ -99,6 +99,12 @@ class ConstructionTable():
                 temp['conductivity'] = material.conductivity
                 temp['specificHeat'] = material.specificHeat
                 temp['density'] = material.density
+
+                #TODO: table構造を修正してここを直す必要
+                if material.classification is None:
+                    temp['classification'] = 1
+                else:
+                    temp['classification'] = material.classification
                 materials.append(temp)
             return materials
 
@@ -129,7 +135,7 @@ class ConstructionTable():
         return res
 
 class MaterialTable():
-    def insert(self,name,description,conductibity,specificHeat,density,moistureConductivity,moistureCapacity):
+    def insert(self,name,description,conductibity,specificHeat,density,moistureConductivity,moistureCapacity,classification):
         p=Material(
             name,
             description,
@@ -137,7 +143,8 @@ class MaterialTable():
             specificHeat,
             density,
             moistureConductivity,
-            moistureCapacity
+            moistureCapacity,
+            classification
         )
         db.session.add(p)
         db.session.commit()

@@ -35,9 +35,10 @@ class Material(db.Model):
     density = db.Column(db.Float,nullable=False)
     moistureConductivity = db.Column(db.Float,nullable=False)
     moistureCapacity = db.Column(db.Float,nullable=False)
+    classification = db.Column(db.Integer,nullable=True)
     #constructionId = db.Column(db.Integer,db.ForeignKey('construction.id'),nullable=True)
 
-    def __init__(self,name,description,conductivity,specificHeat,density,moistureConductivity,moistureCapacity):
+    def __init__(self,name,description,conductivity,specificHeat,density,moistureConductivity,moistureCapacity,classification):
         self.name = name
         self.description = description
         self.conductivity = conductivity
@@ -45,6 +46,7 @@ class Material(db.Model):
         self.density = density
         self.moistureConductivity = moistureConductivity
         self.moistureCapacity = moistureCapacity
+        self.classification = classification
 
 exWallIdentifier = db.Table('exWallIdentifier',
     db.Column('envelopeId',db.Integer,db.ForeignKey('envelope.id')),

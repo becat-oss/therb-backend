@@ -46,7 +46,8 @@ class MaterialEndpoint(Resource):
             payload["specificHeat"],
             payload["density"],
             payload["moistureConductivity"],
-            payload["moistureCapacity"]
+            payload["moistureCapacity"],
+            payload["classification"]
         )
 
         return {
@@ -69,6 +70,18 @@ class MaterialEndpoint(Resource):
             "message":"could retrieve materials",
             "data":materialTable.retrieve()
             })
+
+    def delete(self):
+        id = request.args.get('id')
+        db=SQLAlchemy()
+        material=db.session.query(Material).filter(Material.id==id)
+        if material.count() >= 1:
+            db.session.delete(material.first())
+            db.session.commit()
+
+            return {"status":"success"},200
+        else:
+            abort(404)
 
 class EnvelopeEndpoint(Resource):
     def post(self):
@@ -167,8 +180,9 @@ api.add_resource(TagEndpoint,'/tags')
 # projectListのエンドポイント
 class ProjectListEndpoint(Resource):
     def get(self):
-        projectTable=ProjectTable()
-        return jsonify({"data":projectTable.retrieve()})
+        #projectTable=ProjectTable()
+        #return jsonify({"data":projectTable.retrieve()})
+        return {"status":"not implemented yet"}
 
     def delete(self,id):
         projectTable=ProjectTable()
@@ -185,10 +199,10 @@ class ProjectEndpoint(Resource):
 
 class ResultEndpoint(Resource):
     def get(self,project_id):
-        #parser=reqparse.RequestParser()
-        #pId=parser.parse_args()
-        resultTable=ResultTable()
-        return {"data":resultTable.retrieve(project_id)}
+
+        #resultTable=ResultTable()
+        #return {"data":resultTable.retrieve(project_id)}
+        return {"status":"not implemented yet"}
 
     def delete(self,project_id):
         resultTable=ResultTable()
