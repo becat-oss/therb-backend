@@ -179,6 +179,43 @@ class ConstructionEndpoint(Resource):
             }
         }
 
+    def put(self):
+        payload = request.json
+
+        #必要な情報が含まれているかどうかチェック
+        if payload["name"] == "":
+            return {"status":"error","message":"name is required"},400
+        if len(payload["materialIds"]) == 0:
+            return {"status":"error","message":"at least one material id is required"},400
+        if payload["thickness"] == "":
+            return {"status":"error","message":"at least one thickness data is required"},400
+        if payload["thickness"].count(",")+1 != len(payload["materialIds"]) :
+            return {"status":"error","message":"you cannot select same material in one construction"},400
+        
+        id = request.args.get('id')
+        constructionTable = ConstructionTable()
+        data=constructionTable.update(
+            id,
+            payload["name"],
+            payload["description"],
+            payload["materialIds"],
+            payload["thickness"],
+            payload["tagIds"],
+            payload["category"]
+        )
+
+        return {
+            "status":"success",
+            "message":"could update construction",
+            "data":{
+                "id":str(data.id),
+                "name":data.name,
+                "description":data.description,
+                "thickness":data.thickness,
+                "categories":data.categories,
+            }
+        }
+
     def get(self):
         constructionTable=ConstructionTable()
         return jsonify({

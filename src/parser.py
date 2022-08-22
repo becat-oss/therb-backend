@@ -88,6 +88,25 @@ class ConstructionTable():
         #db.session.add(construction)
         #db.session.commit()
         return construction
+    
+    def update(self,id,name,description,materialIds,thickness,tagIds,categories):
+        construction=db.session.query(Construction).filter_by(id=id).first()
+
+        construction.name=name
+        construction.description=description
+        construction.categories=categories
+        construction.thickness=thickness
+        construction.materials=[]
+        construction.tags=[]
+        for materialId in materialIds:
+            material=db.session.query(Material).filter_by(id=int(materialId)).first()
+            construction.materials.append(material)
+
+        for tagId in tagIds:
+            tag=Tag.query.filter_by(id=int(tagId)).first()
+            construction.tags.append(tag)
+        db.session.commit()
+        return construction
 
     def retrieve(self):
         def retrieve_materials(construction):
