@@ -77,12 +77,13 @@ class EnvelopeTable():
 
 class ConstructionTable():
 
-    def insert(self,name,description,materialIds,thickness,tagIds,categories):
+    def insert(self,name,description,materialIds,thickness,tagIds,categories,uvalue):
         construction=Construction(
             name,
             description,
             categories,
-            thickness
+            thickness,
+            uvalue
         )
         #extract materials using material_ids
         for materialId in materialIds:

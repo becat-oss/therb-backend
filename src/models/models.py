@@ -137,11 +137,12 @@ class Construction(db.Model):
     uvalue = db.Column(db.Float,nullable=True)
     #envelopes = db.relationship('Envelope',backref='construction',lazy='dynamic')
 
-    def __init__(self,name,description,categories,thickness):
+    def __init__(self,name,description,categories,thickness,uvalue):
         self.name = name
         self.description = description
         self.categories = categories
         self.thickness = thickness
+        self.uvalue = uvalue
 
     def toDict(self):
         thicknessList = self.thickness.split(",")
@@ -154,7 +155,8 @@ class Construction(db.Model):
             'category':self.categories,
             'materials':[m.toDict() for m in self.materials],
             'tags':[t.toDict() for t in self.tags],
-            'thickness':thickness
+            'thickness':thickness,
+            'uvalue':self.uvalue
         }
 
 class Tag(db.Model):

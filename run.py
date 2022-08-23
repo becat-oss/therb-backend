@@ -172,7 +172,8 @@ class ConstructionEndpoint(Resource):
             payload["materialIds"],
             payload["thickness"],
             payload["tagIds"],
-            payload["category"]
+            payload["category"],
+            payload["uvalue"]
         )
 
         return {
