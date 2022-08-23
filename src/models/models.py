@@ -48,6 +48,24 @@ class Material(db.Model):
         self.moistureCapacity = moistureCapacity
         self.classification = classification
 
+    def toDict(self):
+        if self.classification is None:
+            classification = 1
+        else:
+            classification = self.classification
+
+        return{
+            'id':str(self.id),
+            'name':self.name,
+            'description':self.description,
+            'conductivity':self.conductivity,
+            'specificHeat':self.specificHeat,
+            'density':self.density,
+            'moistureConductivity':self.moistureConductivity,
+            'moistureCapacity':self.moistureCapacity,
+            'classification':classification
+        }
+
 exWallIdentifier = db.Table('exWallIdentifier',
     db.Column('envelopeId',db.Integer,db.ForeignKey('envelope.id')),
     db.Column('exWallId',db.Integer,db.ForeignKey('construction.id')),
@@ -95,23 +113,51 @@ class Envelope(db.Model):
         self.name = name
         self.description = description
 
+    def toDict(self):
+        return{
+            'id':self.id,
+            'name':self.name,
+            'description':self.description,
+            'exteriorWall':[c.toDict() for c in self.exteriorWall],
+            'interiorWall':[c.toDict() for c in self.interiorWall],
+            'roof':[c.toDict() for c in self.roof],
+            'groundFloor':[c.toDict() for c in self.groundFloor],
+            'floorCeiling':[c.toDict() for c in self.floorCeiling],
+            'window':[c.toDict() for c in self.window],
+        }
+
 class Construction(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String(255),nullable=False,unique=True)
     description = db.Column(db.String(255),nullable=False)
-    #materials = db.relationship('Material',backref='construction',lazy='dynamic')
     materials = db.relationship('Material',secondary=construction_material,backref='constructions')
     thickness = db.Column(db.String(255),nullable=False) # 10,20,10 thickness =10mm,20mm,10mm
     categories =db.Column(db.String(255),nullable=False)
-    #tags = db.relationship('Tag',backref='construction',lazy='dynamic')
     tags = db.relationship('Tag',secondary=construction_tag,backref='constructions')
+    uvalue = db.Column(db.Float,nullable=True)
     #envelopes = db.relationship('Envelope',backref='construction',lazy='dynamic')
 
-    def __init__(self,name,description,categories,thickness):
+    def __init__(self,name,description,categories,thickness,uvalue):
         self.name = name
         self.description = description
         self.categories = categories
         self.thickness = thickness
+        self.uvalue = uvalue
+
+    def toDict(self):
+        thicknessList = self.thickness.split(",")
+        thickness = list(map(float, thicknessList))
+
+        return{
+            'id':self.id,
+            'name':self.name,
+            'description':self.description,
+            'category':self.categories,
+            'materials':[m.toDict() for m in self.materials],
+            'tags':[t.toDict() for t in self.tags],
+            'thickness':thickness,
+            'uvalue':self.uvalue
+        }
 
 class Tag(db.Model):
     id = db.Column(db.Integer,primary_key=True)
@@ -122,6 +168,12 @@ class Tag(db.Model):
     def __init__(self,name,description):
         self.name = name
         self.description = description
+
+    def toDict(self):
+        return{
+            'id':str(self.id),
+            'name':self.name,
+        }
 
 class Project(Base):
     __tablename__='project'

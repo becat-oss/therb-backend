@@ -26,14 +26,32 @@ class TagTable():
         return tags
 
 class EnvelopeTable():
-    def queryConstruction(self,constructionId,envelope,key):
-        # for constructionId in constructionIds:
-        #     construction=Construction.query.filter_by(id=constructionId).first()
+    def queryConstruction(self,constructionId,key):
+        result ={}
         construction=Construction.query.filter_by(id=constructionId).first()
             
-        envelope[key].append(construction)
+        result
 
         return envelope
+
+    def retrieve(self):
+        envelope=Envelope.query.all()
+        print ("envelope",envelope)
+        envelopes=[]
+        for e in envelope:
+            # temp = {}
+            # temp['id'] = str(e.id)
+            # temp['name'] = e.name
+            # temp['description'] = e.description
+            # temp['exteriorWall'] = e.exteriorWall
+            # temp['interiorWall'] = e.interiorWall
+            # temp['roof'] = e.roof
+            # temp['groundFloor'] = e.groundFloor
+            # temp['floorCeiling'] = e.floorCeiling
+            # temp['window'] = e.window
+            temp = e.toDict()
+            envelopes.append(temp)
+        return envelopes
 
     def insert(self,name,description,exWallId,inWallId,roofId,groundFloorId,floorCeilingId,windowId):
         envelope=Envelope(name,description)
@@ -44,33 +62,28 @@ class EnvelopeTable():
         # envelopeWithGroundFloor = self.queryConstruction(groundFloorId,envelopeWithRoof,"groundFloor")
         # envelopeWithFloorCeiling = self.queryConstruction(floorCeilingId,envelopeWithGroundFloor,"floorCeling")
         # envelopeWithWindow = self.queryConstruction(windowId,envelopeWithFloorCeiling,"window")
+        envelope.exteriorWall.append(db.session.query(Construction).filter_by(id=exWallId).first())
+        envelope.interiorWall.append(db.session.query(Construction).filter_by(id=inWallId).first())
+        envelope.roof.append(db.session.query(Construction).filter_by(id=roofId).first())
+        envelope.groundFloor.append(db.session.query(Construction).filter_by(id=groundFloorId).first())
+        envelope.floorCeiling.append(db.session.query(Construction).filter_by(id=floorCeilingId).first())
+        envelope.window.append(db.session.query(Construction).filter_by(id=windowId).first())
 
-        envelope.exteriorWall.append(Construction.query.filter_by(id=exWallId).first())
-        envelope.interiorWall.append(Construction.query.filter_by(id=inWallId).first())
-        envelope.roof.append(Construction.query.filter_by(id=roofId).first())
-        envelope.groundFloor.append(Construction.query.filter_by(id=groundFloorId).first())
-        envelope.floorCeiling.append(Construction.query.filter_by(id=floorCeilingId).first())
-        envelope.window.append(Construction.query.filter_by(id=windowId).first())
-
-        print('envelope',envelope)
-        current_db_session=db.session.object_session(envelope)
-
-        #FIXME: current_db_session get to None which cause error
-        print ('current_db_session',current_db_session)
-        current_db_session.add(envelope)
-        #db.session.add(construction)
-        current_db_session.commit()
+        db.session.add(envelope)
+        db.session.commit()
+        
 
         return {"status":"success"}
 
 class ConstructionTable():
 
-    def insert(self,name,description,materialIds,thickness,tagIds,categories):
+    def insert(self,name,description,materialIds,thickness,tagIds,categories,uvalue):
         construction=Construction(
             name,
             description,
             categories,
-            thickness
+            thickness,
+            uvalue
         )
         #extract materials using material_ids
         for materialId in materialIds:
@@ -80,9 +93,10 @@ class ConstructionTable():
         for tagId in tagIds:
             tag=Tag.query.filter_by(id=int(tagId)).first()
             construction.tags.append(tag)
-        
+
         #reference: https://stackoverflow.com/questions/24291933/sqlalchemy-object-already-attached-to-session
         current_db_session=db.session.object_session(construction)
+
         current_db_session.add(construction)
         current_db_session.commit()
         #db.session.add(construction)
@@ -109,47 +123,21 @@ class ConstructionTable():
         return construction
 
     def retrieve(self):
-        def retrieve_materials(construction):
-            materials=[]
-            for material in construction.materials:
-                temp = {}
-                temp['id'] = str(material.id)
-                temp['name'] = material.name
-                temp['description'] = material.description
-                temp['conductivity'] = material.conductivity
-                temp['specificHeat'] = material.specificHeat
-                temp['density'] = material.density
-
-                #TODO: table構造を修正してここを直す必要
-                if material.classification is None:
-                    temp['classification'] = 1
-                else:
-                    temp['classification'] = material.classification
-                materials.append(temp)
-            return materials
-
-        def retrieve_tags(construction):
-            tags=[]
-            for tag in construction.tags:
-                temp = {}
-                temp['id'] = str(tag.id)
-                temp['name'] = tag.name
-                tags.append(temp)
-            return tags
         
         data = Construction.query.all()
         res = []
         for construction in data:
-            temp = {}
-            temp['id'] = str(construction.id)
-            temp['name'] = construction.name
-            temp['description'] = construction.description
-            temp['category'] = construction.categories
-            temp['materials'] = retrieve_materials(construction)
-            temp['tags'] = retrieve_tags(construction)
+            # temp = {}
+            # temp['id'] = str(construction.id)
+            # temp['name'] = construction.name
+            # temp['description'] = construction.description
+            # temp['category'] = construction.categories
+            # temp['materials'] = retrieve_materials(construction)
+            # temp['tags'] = retrieve_tags(construction)
 
-            thicknessList = construction.thickness.split(",")
-            temp["thickness"] = list(map(float, thicknessList))
+            # thicknessList = construction.thickness.split(",")
+            # temp["thickness"] = list(map(float, thicknessList))
+            temp = construction.toDict()
             
             res.append(temp)
         return res
@@ -190,12 +178,8 @@ class MaterialTable():
         data=Material.query.all()
         res=[]
 
-        for project in data:
-            temp={}
-            temp["id"]=str(project.id)
-            temp["name"]=project.name
-            temp["description"]=project.description
-            temp["conductivity"]=project.conductivity
+        for material in data:
+            temp = material.toDict()
             res.append(temp)
 
         return res
