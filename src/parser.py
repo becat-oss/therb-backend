@@ -35,6 +35,24 @@ class EnvelopeTable():
 
         return envelope
 
+    def retrieve(self):
+        envelope=Envelope.query.all()
+        print ("envelope",envelope)
+        envelopes=[]
+        for e in envelope:
+            temp = {}
+            temp['id'] = str(e.id)
+            temp['name'] = e.name
+            temp['description'] = e.description
+            temp['exteriorWall'] = e.exteriorWall
+            temp['interiorWall'] = e.interiorWall
+            temp['roof'] = e.roof
+            temp['groundFloor'] = e.groundFloor
+            temp['floorCeiling'] = e.floorCeiling
+            temp['window'] = e.window
+            envelopes.append(temp)
+        return envelopes
+
     def insert(self,name,description,exWallId,inWallId,roofId,groundFloorId,floorCeilingId,windowId):
         envelope=Envelope(name,description)
 
@@ -44,22 +62,25 @@ class EnvelopeTable():
         # envelopeWithGroundFloor = self.queryConstruction(groundFloorId,envelopeWithRoof,"groundFloor")
         # envelopeWithFloorCeiling = self.queryConstruction(floorCeilingId,envelopeWithGroundFloor,"floorCeling")
         # envelopeWithWindow = self.queryConstruction(windowId,envelopeWithFloorCeiling,"window")
+        print("exteriorWall",db.session.query(Construction).filter_by(id=exWallId).first())
+        envelope.exteriorWall.append(db.session.query(Construction).filter_by(id=exWallId).first())
+        envelope.interiorWall.append(db.session.query(Construction).filter_by(id=inWallId).first())
+        envelope.roof.append(db.session.query(Construction).filter_by(id=roofId).first())
+        envelope.groundFloor.append(db.session.query(Construction).filter_by(id=groundFloorId).first())
+        envelope.floorCeiling.append(db.session.query(Construction).filter_by(id=floorCeilingId).first())
+        envelope.window.append(db.session.query(Construction).filter_by(id=windowId).first())
 
-        envelope.exteriorWall.append(Construction.query.filter_by(id=exWallId).first())
-        envelope.interiorWall.append(Construction.query.filter_by(id=inWallId).first())
-        envelope.roof.append(Construction.query.filter_by(id=roofId).first())
-        envelope.groundFloor.append(Construction.query.filter_by(id=groundFloorId).first())
-        envelope.floorCeiling.append(Construction.query.filter_by(id=floorCeilingId).first())
-        envelope.window.append(Construction.query.filter_by(id=windowId).first())
-
-        print('envelope',envelope)
-        current_db_session=db.session.object_session(envelope)
+        print('db.session',db.session)
+        #current_db_session=db.session.object_session(envelope)
 
         #FIXME: current_db_session get to None which cause error
-        print ('current_db_session',current_db_session)
-        current_db_session.add(envelope)
+        #print ('current_db_session',current_db_session)
+        #current_db_session.add(envelope)
+        #current_db_session.commit()
         #db.session.add(construction)
-        current_db_session.commit()
+        db.session.
+        db.session.commit()
+        
 
         return {"status":"success"}
 
@@ -72,6 +93,7 @@ class ConstructionTable():
             categories,
             thickness
         )
+        print ("construction",construction.toDict())
         #extract materials using material_ids
         for materialId in materialIds:
             material=Material.query.filter_by(id=int(materialId)).first()
@@ -80,9 +102,10 @@ class ConstructionTable():
         for tagId in tagIds:
             tag=Tag.query.filter_by(id=int(tagId)).first()
             construction.tags.append(tag)
-        
+        print('db.session',db.session)
         #reference: https://stackoverflow.com/questions/24291933/sqlalchemy-object-already-attached-to-session
         current_db_session=db.session.object_session(construction)
+        print ('current_db_session',current_db_session)
         current_db_session.add(construction)
         current_db_session.commit()
         #db.session.add(construction)

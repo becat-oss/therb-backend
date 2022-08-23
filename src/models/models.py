@@ -95,6 +95,14 @@ class Envelope(db.Model):
         self.name = name
         self.description = description
 
+    def toDict(self):
+        return{
+            'id':self.id,
+            'name':self.name,
+            'description':self.description,
+            'exteriorWall':[c.toDict() for c in self.exteriorWall],
+        }
+
 class Construction(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String(255),nullable=False,unique=True)
@@ -112,6 +120,13 @@ class Construction(db.Model):
         self.description = description
         self.categories = categories
         self.thickness = thickness
+
+    def toDict(self):
+        return{
+            'id':self.id,
+            'name':self.name,
+            'description':self.description,
+        }
 
 class Tag(db.Model):
     id = db.Column(db.Integer,primary_key=True)

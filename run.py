@@ -140,7 +140,15 @@ class EnvelopeEndpoint(Resource):
             payload["windowId"],
         )
 
-        return {"status":"success"}
+        return {"status":"success"},200
+
+    def get(self):
+        envelopeTable=EnvelopeTable()
+        return jsonify({
+            "status":"success",
+            "message":"could retrieve envelopes",
+            "data":envelopeTable.retrieve()
+            })
 
 
 class ConstructionEndpoint(Resource):
