@@ -347,11 +347,16 @@ def run_therb():
 
     shutil.copy("lib/therb/therb.exe",os.path.join("data",datasetName.replace(".zip",""), "therb.exe"))
 
+    #therbシミュレーションを実行する
+    p = Popen(os.path.join("data",datasetName.replace(".zip",""), "therb.exe"))
+    
+    stdout,stderr=p.communicate()
+    print('STDOUT: {}'.format(stdout))
+
     #zipファイルを削除する
     os.remove(datasetName)
     #dataフォルダのデータも削除する
     shutil.rmtree(os.path.join("data",datasetName.replace(".zip","")))
-    #therbシミュレーションをrunする
 
     # p=Project(name=folder)
     # new_path=os.path.join(os.path.join("data/therb",folder))
