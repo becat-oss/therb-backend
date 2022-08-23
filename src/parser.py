@@ -39,16 +39,17 @@ class EnvelopeTable():
         print ("envelope",envelope)
         envelopes=[]
         for e in envelope:
-            temp = {}
-            temp['id'] = str(e.id)
-            temp['name'] = e.name
-            temp['description'] = e.description
+            # temp = {}
+            # temp['id'] = str(e.id)
+            # temp['name'] = e.name
+            # temp['description'] = e.description
             # temp['exteriorWall'] = e.exteriorWall
             # temp['interiorWall'] = e.interiorWall
             # temp['roof'] = e.roof
             # temp['groundFloor'] = e.groundFloor
             # temp['floorCeiling'] = e.floorCeiling
             # temp['window'] = e.window
+            temp = e.toDict()
             envelopes.append(temp)
         return envelopes
 
