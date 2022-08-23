@@ -48,6 +48,24 @@ class Material(db.Model):
         self.moistureCapacity = moistureCapacity
         self.classification = classification
 
+    def toDict(self):
+        if self.classification is None:
+            classification = 1
+        else:
+            classification = self.classification
+
+        return{
+            'id':str(self.id),
+            'name':self.name,
+            'description':self.description,
+            'conductivity':self.conductivity,
+            'specificHeat':self.specificHeat,
+            'density':self.density,
+            'moistureConductivity':self.moistureConductivity,
+            'moistureCapacity':self.moistureCapacity,
+            'classification':classification
+        }
+
 exWallIdentifier = db.Table('exWallIdentifier',
     db.Column('envelopeId',db.Integer,db.ForeignKey('envelope.id')),
     db.Column('exWallId',db.Integer,db.ForeignKey('construction.id')),
@@ -122,10 +140,17 @@ class Construction(db.Model):
         self.thickness = thickness
 
     def toDict(self):
+        thicknessList = self.thickness.split(",")
+        thickness = list(map(float, thicknessList))
+
         return{
             'id':self.id,
             'name':self.name,
             'description':self.description,
+            'category':self.categories,
+            'materials':[m.toDict() for m in self.materials],
+            'tags':[t.toDict() for t in self.tags],
+            'thickness':thickness
         }
 
 class Tag(db.Model):
@@ -137,6 +162,12 @@ class Tag(db.Model):
     def __init__(self,name,description):
         self.name = name
         self.description = description
+
+    def toDict(self):
+        return{
+            'id':str(self.id),
+            'name':self.name,
+        }
 
 class Project(Base):
     __tablename__='project'
