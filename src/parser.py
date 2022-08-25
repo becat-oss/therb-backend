@@ -26,17 +26,9 @@ class TagTable():
         return tags
 
 class EnvelopeTable():
-    def queryConstruction(self,constructionId,key):
-        result ={}
-        construction=Construction.query.filter_by(id=constructionId).first()
-            
-        result
-
-        return envelope
 
     def retrieve(self):
         envelope=Envelope.query.all()
-        print ("envelope",envelope)
         envelopes=[]
         for e in envelope:
             # temp = {}

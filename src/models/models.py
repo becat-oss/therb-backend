@@ -115,15 +115,15 @@ class Envelope(db.Model):
 
     def toDict(self):
         return{
-            'id':self.id,
+            'id':str(self.id),
             'name':self.name,
             'description':self.description,
-            'exteriorWall':[c.toDict() for c in self.exteriorWall],
-            'interiorWall':[c.toDict() for c in self.interiorWall],
-            'roof':[c.toDict() for c in self.roof],
-            'groundFloor':[c.toDict() for c in self.groundFloor],
-            'floorCeiling':[c.toDict() for c in self.floorCeiling],
-            'window':[c.toDict() for c in self.window],
+            'exteriorWall':[c.toDict() for c in self.exteriorWall][0],
+            'interiorWall':[c.toDict() for c in self.interiorWall][0],
+            'roof':[c.toDict() for c in self.roof][0],
+            'groundFloor':[c.toDict() for c in self.groundFloor][0],
+            'floorCeiling':[c.toDict() for c in self.floorCeiling][0],
+            'window':[c.toDict() for c in self.window][0],
         }
 
 class Construction(db.Model):
@@ -149,7 +149,7 @@ class Construction(db.Model):
         thickness = list(map(float, thicknessList))
 
         return{
-            'id':self.id,
+            'id':str(self.id),
             'name':self.name,
             'description':self.description,
             'category':self.categories,
