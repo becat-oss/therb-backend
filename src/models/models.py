@@ -36,6 +36,16 @@ schedule_dailySch = db.Table('schedule_dailySch',
     db.Column('dailyId',db.Integer,db.ForeignKey('dailySch.id')),
 )
 
+schedule_weeklySch = db.Table('schedule_weeklySch',
+    db.Column('scheduleId',db.Integer,db.ForeignKey('schedule.id')),
+    db.Column('weeklyId',db.Integer,db.ForeignKey('weeklySch.id')),
+)
+
+schedule_monthlySch = db.Table('schedule_monthlySch',
+    db.Column('scheduleId',db.Integer,db.ForeignKey('schedule.id')),
+    db.Column('monthlyId',db.Integer,db.ForeignKey('monthlySch.id')),
+)
+
 class Material(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String(255),nullable=False,unique=True)
@@ -175,6 +185,8 @@ class Schedule(db.Model):
     description = db.Column(db.String(255),nullable=False)
     tags = db.relationship('Tag',secondary=schedule_tag)
     daily = db.relationship('DailySch',secondary=schedule_dailySch)
+    weekly = db.relationship('WeeklySch',secondary=schedule_weeklySch)
+    monthly = db.relationship('MonthlySch',secondary=schedule_monthlySch)
     #weekly = db.relationship('WeeklySch',back_populates='schedule',uselist=False)
     #monthly = db.relationship('MonthlySch',back_populates='schedule',uselist=False)
     #weekly = db.relationship('WeeklySch',backref='schedule')
@@ -207,39 +219,39 @@ class DailySch(db.Model):
 
     def listToString(self,list):
         #TODO: 配列の長さをチェックする必要
-        return ','.join(list)
+        return ','.join(map(str, list))
 
 class WeeklySch(db.Model):
     #scheduleとWeeklySchはone to oneの関係
     __tablename__ = 'weeklySch'
     id = db.Column(db.Integer,primary_key=True)
     #schedule = db.relationship('Schedule',back_populates='weeklySch')
-    scheduleId = db.Column(db.Integer,db.ForeignKey('schedule.id'))
+    #scheduleId = db.Column(db.Integer,db.ForeignKey('schedule.id'))
     hvac = db.Column(db.String(255),nullable=False) # 1,0,1 hvac sch =[1,0,1]
     
-    def __init__(self,scheduleId,hvac):
-        self.scheduleId = scheduleId
+    def __init__(self,hvac):
+        #self.scheduleId = scheduleId
         self.hvac = self.listToString(hvac)
 
     def listToString(self,list):
         #TODO: 配列の長さをチェックする必要
-        return ','.join(list)
+        return ','.join(map(str, list))
 
 class MonthlySch(db.Model):
     #scheduleとWeeklySchはone to oneの関係
     __tablename__ = 'monthlySch'
     id = db.Column(db.Integer,primary_key=True)
     #schedule = db.relationship('Schedule',back_populates='monthlySch')
-    scheduleId = db.Column(db.Integer,db.ForeignKey('schedule.id'))
+    #scheduleId = db.Column(db.Integer,db.ForeignKey('schedule.id'))
     hvac = db.Column(db.String(255),nullable=False) # 1,0,1 hvac sch =[1,0,1]
 
-    def __init__(self,scheduleId,hvac):
-        self.scheduleId = scheduleId
+    def __init__(self,hvac):
+        #self.scheduleId = scheduleId
         self.hvac = self.listToString(hvac)
 
     def listToString(self,list):
         #TODO: 配列の長さをチェックする必要
-        return ','.join(list)
+        return ','.join(map(str, list))
 
 class Tag(db.Model):
     id = db.Column(db.Integer,primary_key=True)
