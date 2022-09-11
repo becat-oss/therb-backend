@@ -13,7 +13,7 @@ from src.database import init_db
 from subprocess import Popen, PIPE
 import datetime
 from src.app import app
-from src.parser import MaterialTable, ProjectTable, ResultTable,EnvelopeTable,ConstructionTable,TagTable
+from src.parser import MaterialTable, ProjectTable, ResultTable,EnvelopeTable,ConstructionTable, ScheduleTable,TagTable
 from src.models.models import Construction, Project, Results, Therb,db_session,Material
 from flask_cors import CORS
 import shutil
@@ -150,6 +150,21 @@ class EnvelopeEndpoint(Resource):
             "data":envelopeTable.retrieve()
             })
 
+class ScheduleEndpoint(Resource):
+    def post(self):
+        print("schedule post")
+        payload = request.json
+        scheduleTable = ScheduleTable()
+        scheduleTable.insert(
+            payload["name"],
+            payload["description"],
+            payload["tagIds"],
+            payload["daily"],
+            payload["weekly"],
+            payload["monthly"]
+        )
+
+        return {"status":"success"},200
 
 class ConstructionEndpoint(Resource):
     def post(self):
@@ -278,13 +293,12 @@ class TagEndpoint(Resource):
 api.add_resource(EnvelopeEndpoint,'/envelopes')
 api.add_resource(ConstructionEndpoint,'/constructions')
 api.add_resource(MaterialEndpoint,'/materials')
+api.add_resource(ScheduleEndpoint,'/schedules')
 api.add_resource(TagEndpoint,'/tags')
 
 # projectListのエンドポイント
 class ProjectListEndpoint(Resource):
     def get(self):
-        #projectTable=ProjectTable()
-        #return jsonify({"data":projectTable.retrieve()})
         return {"status":"not implemented yet"}
 
     def delete(self,id):

@@ -26,6 +26,16 @@ construction_tag = db.Table('construction_tag',
     db.Column('tagId',db.Integer,db.ForeignKey('tag.id')),
 )
 
+schedule_tag = db.Table('schedule_tag',
+    db.Column('scheduleId',db.Integer,db.ForeignKey('schedule.id')),
+    db.Column('tagId',db.Integer,db.ForeignKey('tag.id')),
+)
+
+schedule_dailySch = db.Table('schedule_dailySch',
+    db.Column('scheduleId',db.Integer,db.ForeignKey('schedule.id')),
+    db.Column('dailyId',db.Integer,db.ForeignKey('dailySch.id')),
+)
+
 class Material(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String(255),nullable=False,unique=True)
@@ -159,6 +169,77 @@ class Construction(db.Model):
             'uvalue':self.uvalue
         }
 
+class Schedule(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    name = db.Column(db.String(255),nullable=False,unique=True)
+    description = db.Column(db.String(255),nullable=False)
+    tags = db.relationship('Tag',secondary=schedule_tag)
+    daily = db.relationship('DailySch',secondary=schedule_dailySch)
+    weekly = db.relationship('WeeklySch',back_populates='schedule',uselist=False)
+    monthly = db.relationship('MonthlySch',back_populates='schedule',uselist=False)
+    #weekly = db.relationship('WeeklySch',backref='schedule')
+    #monthly = db.relationship('MonthlySch',backref='schedule')
+
+    def __init__(self,name,description):
+        self.name = name
+        self.description = description
+
+    def toDict(self):
+        return{
+            'id':str(self.id),
+            'name':self.name,
+            'description':self.description
+        }
+
+class DailySch(db.Model):
+    #scheduleとDailySchはmany to manyの関係
+    __tablename__ = 'dailySch'
+    id = db.Column(db.Integer,primary_key=True)
+    #scheduleId = db.Column(db.Integer,db.ForeignKey('schedule.id'))
+    hvac = db.Column(db.String(255),nullable=False) # 1,0,1 hvac sch =[1,0,1]
+    cooling = db.Column(db.String(255),nullable=False)
+    heating = db.Column(db.String(255),nullable=False)
+
+    def __init__(self,hvac,cooling,heating):
+        #TODO: 配列をstringに変換する必要
+        self.hvac = self.listToString(hvac)
+        self.cooling = self.listToString(cooling)
+        self.heating = self.listToString(heating)
+
+    def listToString(self,list):
+        #TODO: 配列の長さをチェックする必要
+        return ','.join(list)
+
+class WeeklySch(db.Model):
+    #scheduleとWeeklySchはone to oneの関係
+    __tablename__ = 'weeklySch'
+    id = db.Column(db.Integer,primary_key=True)
+    #schedule = db.relationship('Schedule',back_populates='weeklySch')
+    scheduleId = db.Column(db.Integer,db.ForeignKey('schedule.id'))
+    hvac = db.Column(db.String(255),nullable=False) # 1,0,1 hvac sch =[1,0,1]
+    
+    def __init__(self,hvac):
+        self.hvac = self.listToString(hvac)
+
+    def listToString(self,list):
+        #TODO: 配列の長さをチェックする必要
+        return ','.join(list)
+
+class MonthlySch(db.Model):
+    #scheduleとWeeklySchはone to oneの関係
+    __tablename__ = 'monthlySch'
+    id = db.Column(db.Integer,primary_key=True)
+    #schedule = db.relationship('Schedule',back_populates='monthlySch')
+    scheduleId = db.Column(db.Integer,db.ForeignKey('schedule.id'))
+    hvac = db.Column(db.String(255),nullable=False) # 1,0,1 hvac sch =[1,0,1]
+
+    def __init__(self,hvac):
+        self.hvac = self.listToString(hvac)
+
+    def listToString(self,list):
+        #TODO: 配列の長さをチェックする必要
+        return ','.join(list)
+
 class Tag(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String(255),nullable=False,unique=True)
@@ -218,35 +299,3 @@ class Results(Base):
 
     def serialize(self):
         return{"room":self.roomT}
-
-# Base.metadata.create_all(engine)
-
-# class Project(db.Model):
-#     __tablename__='project'
-
-#     id=db.Column(db.Integer, primary_key=True)
-#     name=db.Column(db.String,nullable=False)
-#     results=sa.relationship('Result',backref='project',lazy=True)
-
-# #roomが複数ある場合のテーブル構造を考える必要あり
-# class Result(sa.Model):
-#     #1つのroomにつき1つのResult
-#     __tablename__='result'
-
-#     project_id=sa.Column(sa.Integer,sa.ForeignKey('project.id'))
-#     id=sa.Column(sa.Integer, primary_key=True)
-#     hour=sa.Column(sa.JSON,nullable=False)
-#     roomT=sa.Column(sa.JSON,nullable=False)
-#     clodS=sa.Column(sa.JSON,nullable=False)
-#     rhexS=sa.Column(sa.JSON,nullable=False)
-#     ahexS=sa.Column(sa.JSON,nullable=False)
-#     fs=sa.Column(sa.JSON,nullable=False)
-#     roomH=sa.Column(sa.JSON,nullable=False)
-#     clodL=sa.Column(sa.JSON,nullable=False)
-#     rhexL=sa.Column(sa.JSON,nullable=False)
-#     ahexL=sa.Column(sa.JSON,nullable=False)
-#     fl=sa.Column(sa.JSON,nullable=False)
-#     mrt=sa.Column(sa.JSON,nullable=False)
-
-#     def serialize(self):
-#         return{"room":self.roomT}
