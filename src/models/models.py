@@ -214,8 +214,8 @@ class WeeklySch(db.Model):
     #scheduleとWeeklySchはone to oneの関係
     __tablename__ = 'weeklySch'
     id = db.Column(db.Integer,primary_key=True)
-    #schedule = db.relationship('Schedule',back_populates='weeklySch')
-    scheduleId = db.Column(db.Integer,db.ForeignKey('schedule.id'))
+    schedule = db.relationship('Schedule',back_populates='weeklySch')
+    #scheduleId = db.Column(db.Integer,db.ForeignKey('schedule.id'))
     hvac = db.Column(db.String(255),nullable=False) # 1,0,1 hvac sch =[1,0,1]
     
     def __init__(self,hvac):
@@ -229,8 +229,8 @@ class MonthlySch(db.Model):
     #scheduleとWeeklySchはone to oneの関係
     __tablename__ = 'monthlySch'
     id = db.Column(db.Integer,primary_key=True)
-    #schedule = db.relationship('Schedule',back_populates='monthlySch')
-    scheduleId = db.Column(db.Integer,db.ForeignKey('schedule.id'))
+    schedule = db.relationship('Schedule',back_populates='monthlySch')
+    #scheduleId = db.Column(db.Integer,db.ForeignKey('schedule.id'))
     hvac = db.Column(db.String(255),nullable=False) # 1,0,1 hvac sch =[1,0,1]
 
     def __init__(self,hvac):
