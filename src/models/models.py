@@ -175,8 +175,8 @@ class Schedule(db.Model):
     description = db.Column(db.String(255),nullable=False)
     tags = db.relationship('Tag',secondary=schedule_tag)
     daily = db.relationship('DailySch',secondary=schedule_dailySch)
-    weekly = db.relationship('WeeklySch',back_populates='schedule',uselist=False)
-    monthly = db.relationship('MonthlySch',back_populates='schedule',uselist=False)
+    #weekly = db.relationship('WeeklySch',back_populates='schedule',uselist=False)
+    #monthly = db.relationship('MonthlySch',back_populates='schedule',uselist=False)
     #weekly = db.relationship('WeeklySch',backref='schedule')
     #monthly = db.relationship('MonthlySch',backref='schedule')
 
@@ -195,7 +195,6 @@ class DailySch(db.Model):
     #scheduleとDailySchはmany to manyの関係
     __tablename__ = 'dailySch'
     id = db.Column(db.Integer,primary_key=True)
-    #scheduleId = db.Column(db.Integer,db.ForeignKey('schedule.id'))
     hvac = db.Column(db.String(255),nullable=False) # 1,0,1 hvac sch =[1,0,1]
     cooling = db.Column(db.String(255),nullable=False)
     heating = db.Column(db.String(255),nullable=False)
@@ -214,11 +213,12 @@ class WeeklySch(db.Model):
     #scheduleとWeeklySchはone to oneの関係
     __tablename__ = 'weeklySch'
     id = db.Column(db.Integer,primary_key=True)
-    schedule = db.relationship('Schedule',back_populates='weeklySch')
-    #scheduleId = db.Column(db.Integer,db.ForeignKey('schedule.id'))
+    #schedule = db.relationship('Schedule',back_populates='weeklySch')
+    scheduleId = db.Column(db.Integer,db.ForeignKey('schedule.id'))
     hvac = db.Column(db.String(255),nullable=False) # 1,0,1 hvac sch =[1,0,1]
     
-    def __init__(self,hvac):
+    def __init__(self,scheduleId,hvac):
+        self.scheduleId = scheduleId
         self.hvac = self.listToString(hvac)
 
     def listToString(self,list):
@@ -229,11 +229,12 @@ class MonthlySch(db.Model):
     #scheduleとWeeklySchはone to oneの関係
     __tablename__ = 'monthlySch'
     id = db.Column(db.Integer,primary_key=True)
-    schedule = db.relationship('Schedule',back_populates='monthlySch')
-    #scheduleId = db.Column(db.Integer,db.ForeignKey('schedule.id'))
+    #schedule = db.relationship('Schedule',back_populates='monthlySch')
+    scheduleId = db.Column(db.Integer,db.ForeignKey('schedule.id'))
     hvac = db.Column(db.String(255),nullable=False) # 1,0,1 hvac sch =[1,0,1]
 
-    def __init__(self,hvac):
+    def __init__(self,scheduleId,hvac):
+        self.scheduleId = scheduleId
         self.hvac = self.listToString(hvac)
 
     def listToString(self,list):

@@ -56,7 +56,7 @@ class ScheduleTable():
     def insert(self,name,description,tagIds,daily,weekly,monthly):
         # ここでうまくいかない
         s=Schedule(name,description)
-
+        print ("s",s)
         for tagId in tagIds:
             tag=Tag.query.filter_by(id=int(tagId)).first()
             print ("tag",tag)
@@ -74,6 +74,7 @@ class ScheduleTable():
 
         #weeklyScheduleを保存する
         w = WeeklySch(
+            s.id,
             weekly["hvac"],
         )
         db.session.add(w)
@@ -81,6 +82,7 @@ class ScheduleTable():
 
         #monthlyScheduleを保存する
         m = MonthlySch(
+            s.id,
             monthly["hvac"],
         )
         db.session.add(m)
