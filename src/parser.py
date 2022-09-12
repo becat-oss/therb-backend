@@ -89,10 +89,6 @@ class ScheduleTable():
 
         db.session.add(s)
         db.session.commit()
-        # current_db_session=db.session.object_session(s)
-
-        # current_db_session.add(s)
-        # current_db_session.commit()
         
         return s
 
@@ -100,9 +96,7 @@ class ScheduleTable():
         p=Schedule.query.all()
         schedules=[]
         for schedule in p:
-            temp = {}
-            temp['id'] = str(schedule.id)
-            temp['name'] = schedule.name
+            temp = schedule.toDict()
             schedules.append(temp)
         return schedules
 
@@ -158,16 +152,6 @@ class ConstructionTable():
         data = Construction.query.all()
         res = []
         for construction in data:
-            # temp = {}
-            # temp['id'] = str(construction.id)
-            # temp['name'] = construction.name
-            # temp['description'] = construction.description
-            # temp['category'] = construction.categories
-            # temp['materials'] = retrieve_materials(construction)
-            # temp['tags'] = retrieve_tags(construction)
-
-            # thicknessList = construction.thickness.split(",")
-            # temp["thickness"] = list(map(float, thicknessList))
             temp = construction.toDict()
             
             res.append(temp)

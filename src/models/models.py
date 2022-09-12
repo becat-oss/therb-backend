@@ -187,10 +187,6 @@ class Schedule(db.Model):
     daily = db.relationship('DailySch',secondary=schedule_dailySch)
     weekly = db.relationship('WeeklySch',secondary=schedule_weeklySch)
     monthly = db.relationship('MonthlySch',secondary=schedule_monthlySch)
-    #weekly = db.relationship('WeeklySch',back_populates='schedule',uselist=False)
-    #monthly = db.relationship('MonthlySch',back_populates='schedule',uselist=False)
-    #weekly = db.relationship('WeeklySch',backref='schedule')
-    #monthly = db.relationship('MonthlySch',backref='schedule')
 
     def __init__(self,name,description):
         self.name = name
@@ -200,7 +196,10 @@ class Schedule(db.Model):
         return{
             'id':str(self.id),
             'name':self.name,
-            'description':self.description
+            'description':self.description,
+            'daily':[d.toDict() for d in self.daily],
+            'weekly':[w.toDict() for w in self.weekly],
+            'monthly':[m.toDict() for m in self.monthly],
         }
 
 class DailySch(db.Model):
@@ -216,6 +215,18 @@ class DailySch(db.Model):
         self.hvac = self.listToString(hvac)
         self.cooling = self.listToString(cooling)
         self.heating = self.listToString(heating)
+
+    def toDict(self):
+        return {
+            'id':str(self.id),
+            'hvac':self.stringToList(self.hvac),
+            'cooling':self.stringToList(self.cooling),
+            'heating':self.stringToList(self.heating)
+        }
+
+    def stringToList(self,string):
+        stringList = string.split(",")
+        return list(map(int, stringList))
 
     def listToString(self,list):
         #TODO: 配列の長さをチェックする必要
@@ -233,6 +244,16 @@ class WeeklySch(db.Model):
         #self.scheduleId = scheduleId
         self.hvac = self.listToString(hvac)
 
+    def toDict(self):
+        return {
+            'id':str(self.id),
+            'hvac':self.stringToList(self.hvac),
+        }
+
+    def stringToList(self,string):
+        stringList = string.split(",")
+        return list(map(int, stringList))
+
     def listToString(self,list):
         #TODO: 配列の長さをチェックする必要
         return ','.join(map(str, list))
@@ -248,6 +269,16 @@ class MonthlySch(db.Model):
     def __init__(self,hvac):
         #self.scheduleId = scheduleId
         self.hvac = self.listToString(hvac)
+    
+    def toDict(self):
+        return {
+            'id':str(self.id),
+            'hvac':self.stringToList(self.hvac),
+        }
+
+    def stringToList(self,string):
+        stringList = string.split(",")
+        return list(map(int, stringList))
 
     def listToString(self,list):
         #TODO: 配列の長さをチェックする必要

@@ -166,6 +166,14 @@ class ScheduleEndpoint(Resource):
 
         return {"status":"success"},200
 
+    def get(self):
+        scheduleTable=ScheduleTable()
+        return jsonify({
+            "status":"success",
+            "message":"could retrieve schedules",
+            "data":scheduleTable.retrieve()
+        })
+
 class ConstructionEndpoint(Resource):
     def post(self):
         payload = request.json
