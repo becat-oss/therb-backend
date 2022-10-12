@@ -26,6 +26,16 @@ construction_tag = db.Table('construction_tag',
     db.Column('tagId',db.Integer,db.ForeignKey('tag.id')),
 )
 
+window_material = db.Table('window_material',
+    db.Column('windowId',db.Integer,db.ForeignKey('window.id')),
+    db.Column('materialId',db.Integer,db.ForeignKey('material.id')),
+)
+
+window_tag = db.Table('window_tag',
+    db.Column('windowId',db.Integer,db.ForeignKey('window.id')),
+    db.Column('tagId',db.Integer,db.ForeignKey('tag.id')),
+)
+
 schedule_tag = db.Table('schedule_tag',
     db.Column('scheduleId',db.Integer,db.ForeignKey('schedule.id')),
     db.Column('tagId',db.Integer,db.ForeignKey('tag.id')),
@@ -55,6 +65,13 @@ class Material(db.Model):
     density = db.Column(db.Float,nullable=False)
     moistureConductivity = db.Column(db.Float,nullable=False)
     moistureCapacity = db.Column(db.Float,nullable=False)
+    solarAbsorptance = db.Column(db.Float,nullable=True)
+    solarTransmittance = db.Column(db.Float,nullable=True)
+    interiorEmissivity = db.Column(db.Float,nullable=True)
+    exteriorEmissivity = db.Column(db.Float,nullable=True)
+    interiorCoefficientOfCavityConvection = db.Column(db.Float,nullable=True)
+    exteriorCoefficientOfCavityConvection = db.Column(db.Float,nullable=True)
+    velocityOfAirFlowThroughCavity = db.Column(db.Float,nullable=True)
     classification = db.Column(db.Integer,nullable=True)
     #constructionId = db.Column(db.Integer,db.ForeignKey('construction.id'),nullable=True)
 
@@ -113,7 +130,7 @@ floorCeilingIdentifier = db.Table('floorCeilingIdentifier',
 
 windowIdentifier = db.Table('windowIdentifier',
     db.Column('envelopeId',db.Integer,db.ForeignKey('envelope.id')),
-    db.Column('windowId',db.Integer,db.ForeignKey('construction.id')),
+    db.Column('windowId',db.Integer,db.ForeignKey('window.id')),
 )
 
 class Envelope(db.Model):
@@ -125,7 +142,7 @@ class Envelope(db.Model):
     roof = db.relationship("Construction",secondary=roofIdentifier)
     groundFloor = db.relationship("Construction",secondary=groundFloorIdentifier)
     floorCeiling = db.relationship("Construction",secondary=floorCeilingIdentifier)
-    window = db.relationship("Construction",secondary=windowIdentifier)
+    window = db.relationship("Window",secondary=windowIdentifier)
 
     def __init__(self,name,description):
         self.name = name
@@ -152,6 +169,8 @@ class Construction(db.Model):
     thickness = db.Column(db.String(255),nullable=False) # 10,20,10 thickness =10mm,20mm,10mm
     categories =db.Column(db.String(255),nullable=False)
     tags = db.relationship('Tag',secondary=construction_tag,backref='constructions')
+    # indoorSolarRadiationAbsorptionRate = db.Column(db.Float,nullable=True)
+    # outdoorSolarRadiationAbsorptionRate = db.Column(db.Float,nullable=True)
     uvalue = db.Column(db.Float,nullable=True)
     #envelopes = db.relationship('Envelope',backref='construction',lazy='dynamic')
 
@@ -175,6 +194,40 @@ class Construction(db.Model):
             'tags':[t.toDict() for t in self.tags],
             'thickness':thickness,
             'uvalue':self.uvalue
+        }
+
+class Window(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    name = db.Column(db.String(255),nullable=False,unique=True)
+    description = db.Column(db.String(255),nullable=False)
+    materials = db.relationship('Material',secondary=window_material,backref='windows')
+    thickness = db.Column(db.String(255),nullable=False) # 10,20,10 thickness =10mm,20mm,10mm
+    categories =db.Column(db.String(255),nullable=False)
+    tags = db.relationship('Tag',secondary=window_tag,backref='windows')
+    uvalue = db.Column(db.Float,nullable=True)
+    shgc = db.Column(db.Float,nullable=True)
+    vt = db.Column(db.Float,nullable=True)
+
+
+    def __init__(self,name,description,thickness,uvalue):
+        self.name = name
+        self.description = description
+        self.categories = "window"
+        self.thickness = thickness
+        self.uvalue = uvalue
+        self.shgc = 0.5
+        self.vt = 0.5
+
+    def toDict(self):
+        return{
+            'id':str(self.id),
+            'name':self.name,
+            'description':self.description,
+            'material':self.material.toDict(),
+            'thickness':self.thickness,
+            'uValue':self.uValue,
+            'shgc':self.shgc,
+            'vt':self.vt,
         }
 
 class Schedule(db.Model):

@@ -1,5 +1,5 @@
 from re import S
-from src.models.models import DailySch, MonthlySch, Project,Results,Envelope,Material,Construction,Tag, Schedule, WeeklySch
+from src.models.models import DailySch, MonthlySch, Project,Results,Envelope,Material,Construction,Window,Tag, Schedule, WeeklySch
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import delete
 from flask import jsonify
@@ -44,7 +44,7 @@ class EnvelopeTable():
         envelope.roof.append(db.session.query(Construction).filter_by(id=roofId).first())
         envelope.groundFloor.append(db.session.query(Construction).filter_by(id=groundFloorId).first())
         envelope.floorCeiling.append(db.session.query(Construction).filter_by(id=floorCeilingId).first())
-        envelope.window.append(db.session.query(Construction).filter_by(id=windowId).first())
+        envelope.window.append(db.session.query(Window).filter_by(id=windowId).first())
 
         db.session.add(envelope)
         db.session.commit()
@@ -99,6 +99,32 @@ class ScheduleTable():
             temp = schedule.toDict()
             schedules.append(temp)
         return schedules
+
+class WindowTable():
+    def insert(self,name,description,materialIds,thickness,tagIds,uvalue):
+        w=Window(name,description,thickness,uvalue)
+        for materialId in materialIds:
+            material=Material.query.filter_by(id=int(materialId)).first()
+            w.materials.append(material)
+
+        for tagId in tagIds:
+            tag=Tag.query.filter_by(id=int(tagId)).first()
+            w.tags.append(tag)
+
+        current_db_session=db.session.object_session(w)
+
+        current_db_session.add(w)
+        current_db_session.commit()
+
+        return w
+
+    def retrieve(self):
+        p=Window.query.all()
+        windows=[]
+        for window in p:
+            temp = window.toDict()
+            windows.append(temp)
+        return windows
 
 class ConstructionTable():
 
@@ -156,6 +182,8 @@ class ConstructionTable():
             
             res.append(temp)
         return res
+
+
 
 class MaterialTable():
     def insert(self,name,description,conductibity,specificHeat,density,moistureConductivity,moistureCapacity,classification):

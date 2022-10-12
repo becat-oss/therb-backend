@@ -13,7 +13,7 @@ from src.database import init_db
 from subprocess import Popen, PIPE
 import datetime
 from src.app import app
-from src.parser import MaterialTable, ProjectTable, ResultTable,EnvelopeTable,ConstructionTable, ScheduleTable,TagTable
+from src.parser import MaterialTable, ProjectTable, ResultTable,EnvelopeTable,ConstructionTable, ScheduleTable,TagTable, WindowTable
 from src.models.models import Construction, Project, Results, Therb,db_session,Material
 from flask_cors import CORS
 import shutil
@@ -174,6 +174,39 @@ class ScheduleEndpoint(Resource):
             "data":scheduleTable.retrieve()
         })
 
+class WindowEndpoint(Resource):
+    def post(self):
+        payload = request.json
+        windowTable = WindowTable()
+        data=windowTable.insert(
+            payload["name"],
+            payload["description"],
+            payload["materialIds"],
+            payload["thickness"],
+            payload["tagIds"],
+            payload["uvalue"],
+        )
+
+        return {
+            "status":"success",
+            "message":"could save window",
+            "data":{
+                "id":str(data.id),
+                "name":data.name,
+                "description":data.description,
+                "thickness":data.thickness,
+                "categories":data.categories,
+            }
+        }
+
+    def get(self):
+        windowTable=WindowTable()
+        return jsonify({
+            "status":"success",
+            "message":"could retrieve windows",
+            "data":windowTable.retrieve()
+        })
+
 class ConstructionEndpoint(Resource):
     def post(self):
         payload = request.json
@@ -300,6 +333,7 @@ class TagEndpoint(Resource):
 
 api.add_resource(EnvelopeEndpoint,'/envelopes')
 api.add_resource(ConstructionEndpoint,'/constructions')
+api.add_resource(WindowEndpoint,'/windows')
 api.add_resource(MaterialEndpoint,'/materials')
 api.add_resource(ScheduleEndpoint,'/schedules')
 api.add_resource(TagEndpoint,'/tags')
