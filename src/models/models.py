@@ -126,8 +126,6 @@ class Envelope(db.Model):
     groundFloor = db.relationship("Construction",secondary=groundFloorIdentifier)
     floorCeiling = db.relationship("Construction",secondary=floorCeilingIdentifier)
     window = db.relationship("Construction",secondary=windowIdentifier)
-    #exteriorWall = db.Column(db.Integer,db.ForeignKey('construction.id'))
-    #interiorWall = db.Column(db.Integer,db.ForeignKey('construction.id'))
 
     def __init__(self,name,description):
         self.name = name
@@ -197,9 +195,9 @@ class Schedule(db.Model):
             'id':str(self.id),
             'name':self.name,
             'description':self.description,
-            'daily':[d.toDict() for d in self.daily],
-            'weekly':[w.toDict() for w in self.weekly],
-            'monthly':[m.toDict() for m in self.monthly],
+            'daily':[d.toDict() for d in self.daily][0],
+            'weekly':[w.toDict() for w in self.weekly][0],
+            'monthly':[m.toDict() for m in self.monthly][0],
         }
 
 class DailySch(db.Model):
