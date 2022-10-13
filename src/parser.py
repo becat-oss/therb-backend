@@ -112,7 +112,7 @@ class WindowTable():
             w.tags.append(tag)
 
         current_db_session=db.session.object_session(w)
-
+        print ("current_db_session",current_db_session)
         current_db_session.add(w)
         current_db_session.commit()
 

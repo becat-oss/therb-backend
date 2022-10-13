@@ -208,7 +208,6 @@ class Window(db.Model):
     shgc = db.Column(db.Float,nullable=True)
     vt = db.Column(db.Float,nullable=True)
 
-
     def __init__(self,name,description,thickness,uvalue):
         self.name = name
         self.description = description
@@ -219,13 +218,17 @@ class Window(db.Model):
         self.vt = 0.5
 
     def toDict(self):
+        thicknessList = self.thickness.split(",")
+        thickness = list(map(float, thicknessList))
+
         return{
             'id':str(self.id),
             'name':self.name,
             'description':self.description,
-            'material':self.material.toDict(),
-            'thickness':self.thickness,
-            'uValue':self.uValue,
+            'materials':[m.toDict() for m in self.materials],
+            'tags':[t.toDict() for t in self.tags],
+            'thickness':thickness,
+            'uvalue':self.uvalue,
             'shgc':self.shgc,
             'vt':self.vt,
         }
