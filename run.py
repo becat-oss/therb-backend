@@ -14,7 +14,7 @@ from subprocess import Popen, PIPE
 import datetime
 from src.app import app
 from src.parser import MaterialTable, ProjectTable, ResultTable,EnvelopeTable,ConstructionTable, ScheduleTable,TagTable, WindowTable
-from src.models.models import Construction, Project, Results, Therb,db_session,Material
+from src.models.models import Construction, Envelope, Project, Results, Schedule, Tag, Therb, Window,db_session,Material
 from flask_cors import CORS
 import shutil
 from zipfile import ZipFile
@@ -150,6 +150,18 @@ class EnvelopeEndpoint(Resource):
             "data":envelopeTable.retrieve()
             })
 
+    def delete(self):
+        id = request.args.get('id')
+        db=SQLAlchemy()
+        envelope=db.session.query(Envelope).filter(Envelope.id==id)
+        if envelope.count() >= 1:
+            db.session.delete(envelope.first())
+            db.session.commit()
+
+            return {"status":"success"},200
+        else:
+            abort(404)
+
 class ScheduleEndpoint(Resource):
     def post(self):
         print("schedule post")
@@ -173,6 +185,18 @@ class ScheduleEndpoint(Resource):
             "message":"could retrieve schedules",
             "data":scheduleTable.retrieve()
         })
+
+    def delete(self):
+        id = request.args.get('id')
+        db=SQLAlchemy()
+        schedule=db.session.query(Schedule).filter(Schedule.id==id)
+        if schedule.count() >= 1:
+            db.session.delete(schedule.first())
+            db.session.commit()
+
+            return {"status":"success"},200
+        else:
+            abort(404)
 
 class WindowEndpoint(Resource):
     def post(self):
@@ -206,6 +230,18 @@ class WindowEndpoint(Resource):
             "message":"could retrieve windows",
             "data":windowTable.retrieve()
         })
+
+    def delete(self):
+        id = request.args.get('id')
+        db=SQLAlchemy()
+        window=db.session.query(Window).filter(Window.id==id)
+        if window.count() >= 1:
+            db.session.delete(window.first())
+            db.session.commit()
+
+            return {"status":"success"},200
+        else:
+            abort(404)
 
 class ConstructionEndpoint(Resource):
     def post(self):
@@ -330,6 +366,18 @@ class TagEndpoint(Resource):
             "message":"could retrieve tags",
             "data":tagTable.retrieve()
         })
+
+    def delete(self):
+        id = request.args.get('id')
+        db=SQLAlchemy()
+        tag=db.session.query(Tag).filter(Tag.id==id)
+        if tag.count() >= 1:
+            db.session.delete(tag.first())
+            db.session.commit()
+
+            return {"status":"success"},200
+        else:
+            abort(404)
 
 api.add_resource(EnvelopeEndpoint,'/envelopes')
 api.add_resource(ConstructionEndpoint,'/constructions')
